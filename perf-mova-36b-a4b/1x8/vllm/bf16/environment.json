@@ -1,0 +1,94 @@
+{
+  "schema_version": "inference_data.environment.v1",
+  "model": "K2-Horizon-MoVA-36B-A4B",
+  "cell": {
+    "topology": "1x8",
+    "runtime": "vllm",
+    "dtype": "bf16",
+    "gpus": 8
+  },
+  "components": {
+    "inferencex": {
+      "name": "InferenceX",
+      "repository": "https://github.com/SemiAnalysisAI/InferenceX",
+      "commit": "4ab85c1e33b66d6bd5a3087b3de5ba3e86cbbe80"
+    },
+    "vllm": {
+      "name": "vLLM",
+      "repository": "https://github.com/vllm-project/vllm",
+      "commit": "3df4ae153eb385e27b52f26c81f8edb9e20b9984",
+      "image": "vllm/vllm-openai:nightly-3df4ae153eb385e27b52f26c81f8edb9e20b9984",
+      "version": "0.29.1rc1.dev452+g3df4ae153"
+    }
+  },
+  "system": {
+    "devices": [
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200"
+    ],
+    "device_count": 8,
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-153-generic-x86_64-with-glibc2.39",
+    "torch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "nccl": "2.29.7",
+    "packages": {
+      "vllm": "0.29.1rc1.dev452+g3df4ae153",
+      "torch": "2.13.0+cu130",
+      "triton": "3.7.1",
+      "transformers": "5.17.0"
+    }
+  },
+  "server_launch": {
+    "2": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "<models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd",
+        "--served-model-name",
+        "36b-mova-bf16-vllm-g8-tp-ep-maxc",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "39557",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--max-model-len",
+        "524288",
+        "--tensor-parallel-size",
+        "8",
+        "--max-num-seqs",
+        "2",
+        "--no-enable-prefix-caching",
+        "--generation-config",
+        "vllm",
+        "--enable-expert-parallel"
+      ],
+      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd --served-model-name 36b-mova-bf16-vllm-g8-tp-ep-maxc --host 127.0.0.1 --port 39557 --dtype bfloat16 --trust-remote-code --max-model-len 524288 --tensor-parallel-size 8 --max-num-seqs 2 --no-enable-prefix-caching --generation-config vllm --enable-expert-parallel"
+    }
+  },
+  "client_request_example": {
+    "base_url": "http://127.0.0.1:39557",
+    "model": "36b-mova-bf16-vllm-g8-tp-ep-maxc",
+    "concurrency": 1,
+    "seed": 3,
+    "sequence_length": 524288,
+    "output_tokens": 1,
+    "prompt_ids": {
+      "count": 1,
+      "tokens_per_prompt": [
+        524287
+      ],
+      "note": "exact token-id lists omitted for size; fixed token ids drawn once from the model tokenizer, identical across the three runs of a point"
+    }
+  }
+}
