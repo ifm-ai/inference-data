@@ -1,0 +1,19 @@
+{
+  "generated_utc": "2026-10-14T00:00:00+00:00",
+  "model": "user.K2-3.7B-Q8_0",
+  "slug": "k2horizon-3.7b-q8-0",
+  "source": "EleutherAI lm-eval 0.4.13 over Lemonade's OpenAI-compatible endpoint (IFM K2-Horizon llama.cpp backend), CPU-only",
+  "measurement_class": "cpu_quality_eval \u2014 accuracy + single-stream CPU throughput. NOT a GPU throughput sweep; not interchangeable with the perf-data-* series.",
+  "sampled_items": 101,
+  "bytes": 596271,
+  "manifest_records": 1,
+  "tasks": 8,
+  "gates": {
+    "results_reparsed": true,
+    "samples_wellformed": true,
+    "no_absolute_paths": true,
+    "readme_present": true,
+    "chart_present": true,
+    "throughput_present": true
+  }
+}
