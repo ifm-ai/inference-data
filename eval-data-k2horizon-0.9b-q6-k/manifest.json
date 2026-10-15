@@ -1,0 +1,80 @@
+[
+  {
+    "source": "lm-eval harness output, model user.K2-0.9B-Q6_K",
+    "destination": "eval-data-k2horizon-0.9b-q6-k/",
+    "model": "user.K2-0.9B-Q6_K",
+    "label": "0.9B Q6_K",
+    "family": "0.9B dense",
+    "size_gib": 0.83,
+    "mean_over_7": 0.375,
+    "throughput": {
+      "decode_tok_per_s": 22.56,
+      "prefill_tok_per_s": 43.2,
+      "generated_tokens": 64
+    },
+    "tasks": {
+      "humaneval": {
+        "metric": "pass@1,create_test",
+        "score": 0.4166666666666667,
+        "stderr": 0.1486470975026408,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "mbpp": {
+        "metric": "pass_at_1,none",
+        "score": 0.5,
+        "stderr": 0.15075567228888181,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "gsm8k": {
+        "metric": "exact_match,flexible-extract",
+        "score": 0.3333333333333333,
+        "stderr": 0.14213381090374033,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "coqa": {
+        "metric": "f1,none",
+        "score": 0.5416666666666666,
+        "stderr": 0.1279935980497955,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "squad_completion": {
+        "metric": "contains,none",
+        "score": 0.75,
+        "stderr": "N/A",
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "ifeval": {
+        "metric": "prompt_level_strict_acc,none",
+        "score": 0.0,
+        "stderr": 0.0,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "k2_toolcall": {
+        "metric": "exact_match,extract-json",
+        "score": 0.08333333333333333,
+        "stderr": 0.08333333333333333,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "bigbench_paragraph_segmentation_generate_until": {
+        "metric": "exact_match,none",
+        "score": 0.0,
+        "stderr": 0.0,
+        "n_effective": 5,
+        "in_mean": false
+      }
+    },
+    "sampled_items": 101,
+    "harness": {
+      "lm_eval_version": "0.4.13",
+      "date": 1791881466.0906346,
+      "total_evaluation_time_seconds": "285.34402102185413"
+    }
+  }
+]
