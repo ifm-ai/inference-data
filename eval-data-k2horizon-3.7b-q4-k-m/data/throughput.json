@@ -1,0 +1,5 @@
+{
+  "decode_tok_per_s": 7.46,
+  "prefill_tok_per_s": 13.0,
+  "generated_tokens": 64
+}
