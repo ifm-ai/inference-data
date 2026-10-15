@@ -1,0 +1,80 @@
+[
+  {
+    "source": "lm-eval harness output, model K2-Horizon-MoVA-36B-A4B-IQ4_NL",
+    "destination": "eval-data-mova36b-a4b-iq4-nl/",
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ4_NL",
+    "label": "IQ4_NL",
+    "family": "36B MoE (4B active)",
+    "size_gib": 19.82,
+    "mean_over_7": 0.5556,
+    "throughput": {
+      "decode_tok_per_s": 5.09,
+      "prefill_tok_per_s": 7.8,
+      "generated_tokens": 64
+    },
+    "tasks": {
+      "humaneval": {
+        "metric": "pass@1,create_test",
+        "score": 0.9166666666666666,
+        "stderr": 0.08333333333333333,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "mbpp": {
+        "metric": "pass_at_1,none",
+        "score": 0.6666666666666666,
+        "stderr": 0.14213381090374033,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "gsm8k": {
+        "metric": "exact_match,flexible-extract",
+        "score": 0.8333333333333334,
+        "stderr": 0.11236664374387367,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "coqa": {
+        "metric": "f1,none",
+        "score": 0.7222222222222222,
+        "stderr": 0.0900093507663866,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "squad_completion": {
+        "metric": "contains,none",
+        "score": 0.6666666666666666,
+        "stderr": "N/A",
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "ifeval": {
+        "metric": "prompt_level_strict_acc,none",
+        "score": 0.08333333333333333,
+        "stderr": 0.08333333333333333,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "k2_toolcall": {
+        "metric": "exact_match,extract-json",
+        "score": 0.0,
+        "stderr": 0.0,
+        "n_effective": 12,
+        "in_mean": true
+      },
+      "bigbench_paragraph_segmentation_generate_until": {
+        "metric": "exact_match,none",
+        "score": 0.0,
+        "stderr": 0.0,
+        "n_effective": 5,
+        "in_mean": false
+      }
+    },
+    "sampled_items": 101,
+    "harness": {
+      "lm_eval_version": "0.4.13",
+      "date": 1791285463.3981535,
+      "total_evaluation_time_seconds": "1144.8612036691047"
+    }
+  }
+]
