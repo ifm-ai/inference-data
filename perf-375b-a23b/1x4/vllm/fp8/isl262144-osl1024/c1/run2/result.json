@@ -1,0 +1,65 @@
+{
+  "concurrency": 1,
+  "observed_running": 1,
+  "qualification": {
+    "aggregate_decode_tps": 22.227811170401598,
+    "aggregate_prefill_tps": 5690.319659622809,
+    "passed": true,
+    "reasons": []
+  },
+  "scope": "token completion and admission; server health audit remains separate",
+  "streams": [
+    {
+      "passed": true,
+      "path": "request-0.sse",
+      "reasons": [],
+      "sha256": "a66e5bfea6002916a38b9384be7d1844de33af8759d7529907938e26bf8e9007"
+    }
+  ],
+  "token_ids_requested": false,
+  "upstream": {
+    "benchmark_end_time_unix": 1790371169.632521,
+    "benchmark_start_time_unix": 1790371123.5641072,
+    "completed": 1,
+    "duration": 46.06841367104789,
+    "errors": [
+      ""
+    ],
+    "input_lens": [
+      262144
+    ],
+    "output_lens": [
+      1024
+    ],
+    "output_throughput": 22.227811170401598,
+    "request_goodput:": null,
+    "request_throughput": 0.02170684684609531,
+    "total_input_tokens": 262144,
+    "total_output_tokens": 1024,
+    "total_token_throughput": 5712.547470793211,
+    "ttfts": [
+      32.674588634981774
+    ],
+    "itl_us_stats": [
+      {
+        "count": 1007,
+        "mean": 13295.932472691162,
+        "min": 35,
+        "p50": 13314,
+        "p90": 15345,
+        "p95": 15650,
+        "p99": 16077,
+        "max": 17490
+      }
+    ]
+  },
+  "_slim": {
+    "version": 3,
+    "dropped": [
+      "_archive",
+      "_encoding",
+      "upstream.itls_us"
+    ],
+    "percentile_method": "nearest-rank ceil(n*f)"
+  }
+}
