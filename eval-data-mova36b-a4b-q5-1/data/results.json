@@ -1,0 +1,202 @@
+{
+  "model": "K2-Horizon-MoVA-36B-A4B-Q5_1",
+  "label": "Q5_1",
+  "family": "36B MoE (4B active)",
+  "size_gib": 26.24,
+  "mean_over_7": 0.5794,
+  "throughput": {
+    "decode_tok_per_s": 3.77,
+    "prefill_tok_per_s": 5.1,
+    "generated_tokens": 64
+  },
+  "harness": {
+    "date": 1791718067.382868,
+    "lm_eval_version": "0.4.13",
+    "transformers_version": "5.17.0",
+    "total_evaluation_time_seconds": "1672.0131046972238",
+    "config": {
+      "model": "local-completions",
+      "model_args": {
+        "model": "K2-Horizon-MoVA-36B-A4B-Q5_1",
+        "base_url": "http://localhost:13305/v1/completions",
+        "timeout": 1200,
+        "tokenizer_backend": "huggingface",
+        "tokenizer": "IFM/K2-Horizon-7B"
+      },
+      "batch_size": 1,
+      "batch_sizes": [],
+      "device": "cuda:0",
+      "use_cache": null,
+      "limit": 5.0,
+      "bootstrap_iters": 100000,
+      "gen_kwargs": {
+        "max_gen_toks": 256,
+        "temperature": 0
+      },
+      "random_seed": 0,
+      "numpy_seed": 1234,
+      "torch_seed": 1234,
+      "fewshot_seed": 1234
+    },
+    "versions": {
+      "bigbench_paragraph_segmentation_generate_until": 1.0
+    },
+    "higher_is_better": {
+      "bigbench_paragraph_segmentation_generate_until": {
+        "exact_match": true
+      }
+    },
+    "model_source": "local-completions",
+    "_files": [
+      "results_2026-10-11T04-27-34.261276.json",
+      "results_2026-10-11T04-55-28.895406.json"
+    ],
+    "n-samples": {
+      "humaneval": {
+        "original": 164,
+        "effective": 12
+      },
+      "mbpp": {
+        "original": 500,
+        "effective": 12
+      },
+      "ifeval": {
+        "original": 541,
+        "effective": 12
+      },
+      "k2_toolcall": {
+        "original": 12,
+        "effective": 12
+      },
+      "coqa": {
+        "original": 500,
+        "effective": 12
+      },
+      "gsm8k": {
+        "original": 1319,
+        "effective": 12
+      },
+      "squad_completion": {
+        "original": 2984,
+        "effective": 12
+      },
+      "bigbench_paragraph_segmentation_generate_until": {
+        "original": 9000,
+        "effective": 5
+      }
+    }
+  },
+  "tasks": {
+    "humaneval": {
+      "display": "HumanEval",
+      "metric": "pass@1,create_test",
+      "score": 0.75,
+      "stderr": 0.1305582419667734,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "pass@1,create_test": 0.75,
+        "pass@1_stderr,create_test": 0.1305582419667734
+      }
+    },
+    "mbpp": {
+      "display": "MBPP",
+      "metric": "pass_at_1,none",
+      "score": 0.8333333333333334,
+      "stderr": 0.1123666437438737,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "pass_at_1,none": 0.8333333333333334,
+        "pass_at_1_stderr,none": 0.1123666437438737
+      }
+    },
+    "gsm8k": {
+      "display": "GSM8K",
+      "metric": "exact_match,flexible-extract",
+      "score": 0.9166666666666666,
+      "stderr": 0.08333333333333333,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "exact_match,strict-match": 0.9166666666666666,
+        "exact_match_stderr,strict-match": 0.08333333333333333,
+        "exact_match,flexible-extract": 0.9166666666666666,
+        "exact_match_stderr,flexible-extract": 0.08333333333333333
+      }
+    },
+    "coqa": {
+      "display": "CoQA",
+      "metric": "f1,none",
+      "score": 0.7222222222222222,
+      "stderr": 0.0900093507663866,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "em,none": 0.7222222222222222,
+        "em_stderr,none": 0.08784104611578833,
+        "f1,none": 0.7789423740510698,
+        "f1_stderr,none": 0.0900093507663866
+      }
+    },
+    "squad_completion": {
+      "display": "SQuAD",
+      "metric": "contains,none",
+      "score": 0.6666666666666666,
+      "stderr": "N/A",
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "contains,none": 0.6666666666666666
+      }
+    },
+    "ifeval": {
+      "display": "IFEval",
+      "metric": "prompt_level_strict_acc,none",
+      "score": 0.08333333333333333,
+      "stderr": 0.08333333333333333,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "prompt_level_strict_acc,none": 0.08333333333333333,
+        "prompt_level_strict_acc_stderr,none": 0.08333333333333333,
+        "inst_level_strict_acc,none": 0.2,
+        "prompt_level_loose_acc,none": 0.08333333333333333,
+        "prompt_level_loose_acc_stderr,none": 0.08333333333333333,
+        "inst_level_loose_acc,none": 0.2
+      }
+    },
+    "k2_toolcall": {
+      "display": "Tool-call (custom)",
+      "metric": "exact_match,extract-json",
+      "score": 0.08333333333333333,
+      "stderr": 0.08333333333333333,
+      "in_mean": true,
+      "n_effective": 12,
+      "raw": {
+        "sample_len": 12,
+        "exact_match,extract-json": 0.08333333333333333,
+        "exact_match_stderr,extract-json": 0.08333333333333333
+      }
+    },
+    "bigbench_paragraph_segmentation_generate_until": {
+      "display": "BIG-bench paragraph segmentation",
+      "metric": "exact_match,none",
+      "score": 0.0,
+      "stderr": 0.0,
+      "in_mean": false,
+      "n_effective": 5,
+      "raw": {
+        "sample_len": 5,
+        "exact_match,none": 0.0,
+        "exact_match_stderr,none": 0.0
+      }
+    }
+  }
+}
