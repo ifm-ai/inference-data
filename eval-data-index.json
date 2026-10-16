@@ -1,0 +1,1327 @@
+{
+  "k2horizon-0.9b-bf16": {
+    "model": "K2-Horizon-0.9B-GGUF",
+    "label": "0.9B BF16",
+    "family": "0.9B dense",
+    "size_gib": 2.01,
+    "mean_over_7": 0.3948,
+    "throughput": {
+      "decode_tok_per_s": 11.68,
+      "prefill_tok_per_s": 20.3,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.4166666666666667,
+      "mbpp": 0.5,
+      "gsm8k": 0.4166666666666667,
+      "coqa": 0.5972222222222222,
+      "squad_completion": 0.75,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-0.9b-q4-k-m": {
+    "model": "user.K2-0.9B-Q4_K_M",
+    "label": "0.9B Q4_K_M",
+    "family": "0.9B dense",
+    "size_gib": 0.62,
+    "mean_over_7": 0.3393,
+    "throughput": {
+      "decode_tok_per_s": 27.82,
+      "prefill_tok_per_s": 46.9,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.4166666666666667,
+      "mbpp": 0.25,
+      "gsm8k": 0.3333333333333333,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.75,
+      "ifeval": 0.0,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-0.9b-q5-0": {
+    "model": "user.K2-0.9B-Q5_0",
+    "label": "0.9B Q5_0",
+    "family": "0.9B dense",
+    "size_gib": 0.71,
+    "mean_over_7": 0.4425,
+    "throughput": {
+      "decode_tok_per_s": 19.25,
+      "prefill_tok_per_s": 38.6,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.5,
+      "gsm8k": 0.4166666666666667,
+      "coqa": 0.5972222222222222,
+      "squad_completion": 0.75,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-0.9b-q5-k-m": {
+    "model": "user.K2-0.9B-Q5_K_M",
+    "label": "0.9B Q5_K_M",
+    "family": "0.9B dense",
+    "size_gib": 0.72,
+    "mean_over_7": 0.3869,
+    "throughput": {
+      "decode_tok_per_s": 22.16,
+      "prefill_tok_per_s": 35.9,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.3333333333333333,
+      "mbpp": 0.3333333333333333,
+      "gsm8k": 0.5833333333333334,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.75,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-0.9b-q6-k": {
+    "model": "user.K2-0.9B-Q6_K",
+    "label": "0.9B Q6_K",
+    "family": "0.9B dense",
+    "size_gib": 0.83,
+    "mean_over_7": 0.375,
+    "throughput": {
+      "decode_tok_per_s": 22.56,
+      "prefill_tok_per_s": 43.2,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.4166666666666667,
+      "mbpp": 0.5,
+      "gsm8k": 0.3333333333333333,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.75,
+      "ifeval": 0.0,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-0.9b-q8-0": {
+    "model": "user.K2-0.9B-Q8_0",
+    "label": "0.9B Q8_0",
+    "family": "0.9B dense",
+    "size_gib": 1.07,
+    "mean_over_7": 0.4226,
+    "throughput": {
+      "decode_tok_per_s": 21.61,
+      "prefill_tok_per_s": 52.0,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.4166666666666667,
+      "mbpp": 0.4166666666666667,
+      "gsm8k": 0.5833333333333334,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-bf16": {
+    "model": "K2-Horizon-3.7B-GGUF",
+    "label": "3.7B BF16",
+    "family": "3.7B dense",
+    "size_gib": 9.43,
+    "mean_over_7": 0.5179,
+    "throughput": {
+      "decode_tok_per_s": 2.79,
+      "prefill_tok_per_s": 4.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-q4-k-m": {
+    "model": "user.K2-3.7B-Q4_K_M",
+    "label": "3.7B Q4_K_M",
+    "family": "3.7B dense",
+    "size_gib": 2.94,
+    "mean_over_7": null,
+    "throughput": {
+      "decode_tok_per_s": 7.46,
+      "prefill_tok_per_s": 13.0,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": null,
+      "mbpp": null,
+      "gsm8k": null,
+      "coqa": null,
+      "squad_completion": null,
+      "ifeval": null,
+      "k2_toolcall": null,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-q5-0": {
+    "model": "user.K2-3.7B-Q5_0",
+    "label": "3.7B Q5_0",
+    "family": "3.7B dense",
+    "size_gib": 3.33,
+    "mean_over_7": 0.502,
+    "throughput": {
+      "decode_tok_per_s": 4.82,
+      "prefill_tok_per_s": 9.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.5833333333333334,
+      "coqa": 0.5972222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-q5-k-m": {
+    "model": "user.K2-3.7B-Q5_K_M",
+    "label": "3.7B Q5_K_M",
+    "family": "3.7B dense",
+    "size_gib": 3.39,
+    "mean_over_7": 0.5179,
+    "throughput": {
+      "decode_tok_per_s": 5.83,
+      "prefill_tok_per_s": 9.0,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.75,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 1.0,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-q6-k": {
+    "model": "user.K2-3.7B-Q6_K",
+    "label": "3.7B Q6_K",
+    "family": "3.7B dense",
+    "size_gib": 3.88,
+    "mean_over_7": 0.5139,
+    "throughput": {
+      "decode_tok_per_s": 6.02,
+      "prefill_tok_per_s": 10.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.75,
+      "coqa": 0.5972222222222222,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-3.7b-q8-0": {
+    "model": "user.K2-3.7B-Q8_0",
+    "label": "3.7B Q8_0",
+    "family": "3.7B dense",
+    "size_gib": 5.02,
+    "mean_over_7": 0.5179,
+    "throughput": {
+      "decode_tok_per_s": 5.45,
+      "prefill_tok_per_s": 12.4,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.75,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "k2horizon-7b-bf16": {
+    "model": "K2-Horizon-7B-GGUF",
+    "label": "7B BF16 (baseline)",
+    "family": "7B dense",
+    "size_gib": 16.8,
+    "mean_over_7": 0.4663,
+    "throughput": {
+      "decode_tok_per_s": 1.42,
+      "prefill_tok_per_s": 2.4,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.3333333333333333,
+      "gsm8k": 0.5833333333333334,
+      "coqa": 0.5972222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.25,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-fp8-q8-0": {
+    "model": "feffd71999eb06bfa2fbb8ad220059b694077457",
+    "label": "FP8-Q8_0 (IFM-direct baseline)",
+    "family": "36B MoE (4B active)",
+    "size_gib": 37.1,
+    "mean_over_7": 0.6032,
+    "throughput": {
+      "decode_tok_per_s": 4.14,
+      "prefill_tok_per_s": 8.2,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq1-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ1_M",
+    "label": "IQ1_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 8.1,
+    "mean_over_7": 0.2798,
+    "throughput": {
+      "decode_tok_per_s": 2.59,
+      "prefill_tok_per_s": 3.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.25,
+      "mbpp": 0.3333333333333333,
+      "gsm8k": 0.16666666666666666,
+      "coqa": 0.2916666666666667,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq1-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ1_S",
+    "label": "IQ1_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 7.3,
+    "mean_over_7": 0.2123,
+    "throughput": {
+      "decode_tok_per_s": 3.64,
+      "prefill_tok_per_s": 4.7,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.25,
+      "mbpp": 0.08333333333333333,
+      "gsm8k": 0.08333333333333333,
+      "coqa": 0.23611111111111108,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq2-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ2_M",
+    "label": "IQ2_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 11.6,
+    "mean_over_7": 0.496,
+    "throughput": {
+      "decode_tok_per_s": 3.29,
+      "prefill_tok_per_s": 4.0,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.4166666666666667,
+      "gsm8k": 0.75,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.75,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.25,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq2-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ2_S",
+    "label": "IQ2_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 10.58,
+    "mean_over_7": 0.496,
+    "throughput": {
+      "decode_tok_per_s": 3.65,
+      "prefill_tok_per_s": 5.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.4166666666666667,
+      "mbpp": 0.5,
+      "gsm8k": 1.0,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.75,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq2-xs": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ2_XS",
+    "label": "IQ2_XS",
+    "family": "36B MoE (4B active)",
+    "size_gib": 10.41,
+    "mean_over_7": 0.4464,
+    "throughput": {
+      "decode_tok_per_s": 3.86,
+      "prefill_tok_per_s": 5.5,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.4166666666666667,
+      "gsm8k": 0.6666666666666666,
+      "coqa": 0.5416666666666666,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq2-xxs": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ2_XXS",
+    "label": "IQ2_XXS",
+    "family": "36B MoE (4B active)",
+    "size_gib": 9.37,
+    "mean_over_7": 0.4385,
+    "throughput": {
+      "decode_tok_per_s": 4.25,
+      "prefill_tok_per_s": 5.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.4166666666666667,
+      "coqa": 0.40277777777777773,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq3-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ3_M",
+    "label": "IQ3_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 15.41,
+    "mean_over_7": 0.6032,
+    "throughput": {
+      "decode_tok_per_s": 3.03,
+      "prefill_tok_per_s": 3.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 1.0,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.3333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq3-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ3_S",
+    "label": "IQ3_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 15.27,
+    "mean_over_7": 0.5556,
+    "throughput": {
+      "decode_tok_per_s": 2.86,
+      "prefill_tok_per_s": 3.5,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.5,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.5833333333333334,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq3-xs": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ3_XS",
+    "label": "IQ3_XS",
+    "family": "36B MoE (4B active)",
+    "size_gib": 14.62,
+    "mean_over_7": 0.5317,
+    "throughput": {
+      "decode_tok_per_s": 3.1,
+      "prefill_tok_per_s": 3.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.5,
+      "gsm8k": 0.75,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.5833333333333334,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.25,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq3-xxs": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ3_XXS",
+    "label": "IQ3_XXS",
+    "family": "36B MoE (4B active)",
+    "size_gib": 13.6,
+    "mean_over_7": 0.4762,
+    "throughput": {
+      "decode_tok_per_s": 3.39,
+      "prefill_tok_per_s": 4.4,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.4166666666666667,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.5833333333333334,
+      "squad_completion": 0.75,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq4-nl": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ4_NL",
+    "label": "IQ4_NL",
+    "family": "36B MoE (4B active)",
+    "size_gib": 19.82,
+    "mean_over_7": 0.5556,
+    "throughput": {
+      "decode_tok_per_s": 5.09,
+      "prefill_tok_per_s": 7.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.9166666666666666,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-iq4-xs": {
+    "model": "K2-Horizon-MoVA-36B-A4B-IQ4_XS",
+    "label": "IQ4_XS",
+    "family": "36B MoE (4B active)",
+    "size_gib": 18.75,
+    "mean_over_7": 0.5794,
+    "throughput": {
+      "decode_tok_per_s": 5.36,
+      "prefill_tok_per_s": 8.6,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.9166666666666666,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.75,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.5833333333333334,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.3333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-mxfp4-moe": {
+    "model": "K2-Horizon-MoVA-36B-A4B-MXFP4_MOE",
+    "label": "MXFP4_MOE",
+    "family": "36B MoE (4B active)",
+    "size_gib": 20.23,
+    "mean_over_7": 0.5317,
+    "throughput": {
+      "decode_tok_per_s": 4.28,
+      "prefill_tok_per_s": 8.3,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.5,
+      "gsm8k": 1.0,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q1-0": {
+    "model": "user.K2-MoVA-Q1_0",
+    "label": "Q1_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 5.4,
+    "mean_over_7": 0.0119,
+    "throughput": null,
+    "scores": {
+      "humaneval": 0.0,
+      "mbpp": 0.0,
+      "gsm8k": 0.0,
+      "coqa": 0.0,
+      "squad_completion": 0.0,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q2-0": {
+    "model": "user.K2-MoVA-Q2_0",
+    "label": "Q2_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 10.4,
+    "mean_over_7": null,
+    "throughput": null,
+    "scores": {
+      "humaneval": null,
+      "mbpp": null,
+      "gsm8k": null,
+      "coqa": null,
+      "squad_completion": null,
+      "ifeval": null,
+      "k2_toolcall": null,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 0
+  },
+  "mova36b-a4b-q2-k": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q2_K",
+    "label": "Q2_K",
+    "family": "36B MoE (4B active)",
+    "size_gib": 12.69,
+    "mean_over_7": 0.4762,
+    "throughput": {
+      "decode_tok_per_s": 5.51,
+      "prefill_tok_per_s": 8.6,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5,
+      "mbpp": 0.5,
+      "gsm8k": 0.6666666666666666,
+      "coqa": 0.5833333333333334,
+      "squad_completion": 0.9166666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q3-k-l": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q3_K_L",
+    "label": "Q3_K_L",
+    "family": "36B MoE (4B active)",
+    "size_gib": 17.55,
+    "mean_over_7": 0.5198,
+    "throughput": {
+      "decode_tok_per_s": 4.29,
+      "prefill_tok_per_s": 6.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.5,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.75,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q3-k-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q3_K_M",
+    "label": "Q3_K_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 16.45,
+    "mean_over_7": 0.5317,
+    "throughput": {
+      "decode_tok_per_s": 4.53,
+      "prefill_tok_per_s": 6.7,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.4166666666666667,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q3-k-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q3_K_S",
+    "label": "Q3_K_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 15.27,
+    "mean_over_7": 0.5437,
+    "throughput": {
+      "decode_tok_per_s": 3.58,
+      "prefill_tok_per_s": 5.0,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q4-0": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q4_0",
+    "label": "Q4_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 19.82,
+    "mean_over_7": 0.5794,
+    "throughput": {
+      "decode_tok_per_s": 5.48,
+      "prefill_tok_per_s": 8.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.75,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.9166666666666666,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q4-1": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q4_1",
+    "label": "Q4_1",
+    "family": "36B MoE (4B active)",
+    "size_gib": 21.96,
+    "mean_over_7": 0.5198,
+    "throughput": {
+      "decode_tok_per_s": 4.5,
+      "prefill_tok_per_s": 6.5,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.5833333333333334,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.0,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q4-k-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q4_K_M",
+    "label": "Q4_K_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 20.83,
+    "mean_over_7": 0.5675,
+    "throughput": {
+      "decode_tok_per_s": 5.45,
+      "prefill_tok_per_s": 9.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.6388888888888888,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q4-k-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q4_K_S",
+    "label": "Q4_K_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 19.89,
+    "mean_over_7": 0.5675,
+    "throughput": {
+      "decode_tok_per_s": 4.68,
+      "prefill_tok_per_s": 7.6,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.75,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q5-0": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q5_0",
+    "label": "Q5_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 24.1,
+    "mean_over_7": 0.5794,
+    "throughput": {
+      "decode_tok_per_s": 3.63,
+      "prefill_tok_per_s": 5.7,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.3333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q5-1": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q5_1",
+    "label": "Q5_1",
+    "family": "36B MoE (4B active)",
+    "size_gib": 26.24,
+    "mean_over_7": 0.5794,
+    "throughput": {
+      "decode_tok_per_s": 3.77,
+      "prefill_tok_per_s": 5.1,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.8333333333333334,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.08333333333333333,
+      "k2_toolcall": 0.08333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q5-k-m": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q5_K_M",
+    "label": "Q5_K_M",
+    "family": "36B MoE (4B active)",
+    "size_gib": 24.62,
+    "mean_over_7": 0.5675,
+    "throughput": {
+      "decode_tok_per_s": 4.34,
+      "prefill_tok_per_s": 6.5,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.8333333333333334,
+      "mbpp": 0.5,
+      "gsm8k": 0.8333333333333334,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.6666666666666666,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q5-k-s": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q5_K_S",
+    "label": "Q5_K_S",
+    "family": "36B MoE (4B active)",
+    "size_gib": 24.1,
+    "mean_over_7": 0.5794,
+    "throughput": {
+      "decode_tok_per_s": 4.46,
+      "prefill_tok_per_s": 6.5,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.5833333333333334,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.75,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.16666666666666666,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q6-k": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q6_K",
+    "label": "Q6_K",
+    "family": "36B MoE (4B active)",
+    "size_gib": 28.65,
+    "mean_over_7": 0.6032,
+    "throughput": {
+      "decode_tok_per_s": 4.43,
+      "prefill_tok_per_s": 7.7,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.6666666666666666,
+      "mbpp": 0.6666666666666666,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.75,
+      "ifeval": 0.16666666666666666,
+      "k2_toolcall": 0.3333333333333333,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  },
+  "mova36b-a4b-q8-0": {
+    "model": "K2-Horizon-MoVA-36B-A4B-Q8_0",
+    "label": "Q8_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 37.1,
+    "mean_over_7": 0.6151,
+    "throughput": {
+      "decode_tok_per_s": 4.06,
+      "prefill_tok_per_s": 7.8,
+      "generated_tokens": 64
+    },
+    "scores": {
+      "humaneval": 0.75,
+      "mbpp": 0.5833333333333334,
+      "gsm8k": 0.9166666666666666,
+      "coqa": 0.7222222222222222,
+      "squad_completion": 0.8333333333333334,
+      "ifeval": 0.25,
+      "k2_toolcall": 0.25,
+      "bigbench_paragraph_segmentation_generate_until": 0.0
+    },
+    "audit": {
+      "results_reparsed": true,
+      "samples_wellformed": true,
+      "no_absolute_paths": true,
+      "readme_present": true,
+      "chart_present": true,
+      "throughput_present": true
+    },
+    "sampled_items": 101
+  }
+}

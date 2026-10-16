@@ -1,0 +1,13 @@
+{
+  "models": 43,
+  "gate_failures": [],
+  "all_gates_pass": true,
+  "gates_checked": [
+    "results_reparsed",
+    "samples_wellformed",
+    "no_absolute_paths",
+    "readme_present",
+    "chart_present",
+    "throughput_present"
+  ]
+}

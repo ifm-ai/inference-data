@@ -1,0 +1,27 @@
+task: k2_toolcall
+dataset_path: json
+dataset_kwargs:
+  data_files:
+    test: /mnt/Projects/lemonade-server/k2-tasks/k2_toolcall.jsonl
+test_split: test
+output_type: generate_until
+doc_to_text: "{{prompt}}"
+doc_to_target: "{{answer}}"
+generation_kwargs:
+  max_gen_toks: 256
+  temperature: 0.0
+  do_sample: false
+  until:
+    - <|STOP|>
+filter_list:
+  - name: extract-json
+    filter:
+      - function: regex
+        regex_pattern: '\{.*\}'
+        group_select: -1
+metric_list:
+  - metric: exact_match
+    aggregation: mean
+    higher_is_better: true
+metadata:
+  version: 1.0
