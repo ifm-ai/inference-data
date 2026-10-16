@@ -31,4 +31,4 @@ Mean over the 7 discriminating tasks is .387, below the 7B dense baseline's .466
 | `data/samples.jsonl` | every evaluated item: prompt, model output, target, per-item score |
 | `data/throughput.json` | fixed-prompt decode/prefill probe |
 
-See [`SUMMARY.md`](../../SUMMARY.md) for the cross-model report and [`methodology/`](../../methodology/) for how these numbers were produced.
+See [`SUMMARY.md`](../SUMMARY.md) for the cross-model report and [`methodology/`](../methodology/) for how these numbers were produced.
