@@ -1,0 +1,27 @@
+[
+  {
+    "source": "lm-eval harness output, model user.K2-MoVA-Q2_0",
+    "destination": "eval-data-mova36b-a4b-q2-0/",
+    "model": "user.K2-MoVA-Q2_0",
+    "label": "Q2_0",
+    "family": "36B MoE (4B active)",
+    "size_gib": 10.4,
+    "mean_over_7": null,
+    "throughput": null,
+    "tasks": {
+      "bigbench_paragraph_segmentation_generate_until": {
+        "metric": "exact_match,none",
+        "score": 0.0,
+        "stderr": 0.0,
+        "n_effective": 5,
+        "in_mean": false
+      }
+    },
+    "sampled_items": 0,
+    "harness": {
+      "lm_eval_version": "0.4.13",
+      "date": 1790273858.9019594,
+      "total_evaluation_time_seconds": "4913.799106295919"
+    }
+  }
+]

@@ -1,0 +1,71 @@
+{
+  "model": "user.K2-MoVA-Q2_0",
+  "label": "Q2_0",
+  "family": "36B MoE (4B active)",
+  "size_gib": 10.4,
+  "mean_over_7": null,
+  "throughput": null,
+  "harness": {
+    "date": 1790273858.9019594,
+    "lm_eval_version": "0.4.13",
+    "transformers_version": "5.17.0",
+    "total_evaluation_time_seconds": "4913.799106295919",
+    "config": {
+      "model": "local-completions",
+      "model_args": {
+        "model": "user.K2-MoVA-Q2_0",
+        "base_url": "http://localhost:13305/v1/completions",
+        "timeout": 1200,
+        "tokenizer_backend": "huggingface",
+        "tokenizer": "IFM/K2-Horizon-7B"
+      },
+      "batch_size": 1,
+      "batch_sizes": [],
+      "device": "cuda:0",
+      "use_cache": null,
+      "limit": 5.0,
+      "bootstrap_iters": 100000,
+      "gen_kwargs": {
+        "max_gen_toks": 256,
+        "temperature": 0
+      },
+      "random_seed": 0,
+      "numpy_seed": 1234,
+      "torch_seed": 1234,
+      "fewshot_seed": 1234
+    },
+    "versions": {
+      "bigbench_paragraph_segmentation_generate_until": 1.0
+    },
+    "higher_is_better": {
+      "bigbench_paragraph_segmentation_generate_until": {
+        "exact_match": true
+      }
+    },
+    "model_source": "local-completions",
+    "_files": [
+      "results_2026-09-24T12-39-22.195973.json"
+    ],
+    "n-samples": {
+      "bigbench_paragraph_segmentation_generate_until": {
+        "original": 9000,
+        "effective": 5
+      }
+    }
+  },
+  "tasks": {
+    "bigbench_paragraph_segmentation_generate_until": {
+      "display": "BIG-bench paragraph segmentation",
+      "metric": "exact_match,none",
+      "score": 0.0,
+      "stderr": 0.0,
+      "in_mean": false,
+      "n_effective": 5,
+      "raw": {
+        "sample_len": 5,
+        "exact_match,none": 0.0,
+        "exact_match_stderr,none": 0.0
+      }
+    }
+  }
+}
