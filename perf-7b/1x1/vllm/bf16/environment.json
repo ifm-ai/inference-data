@@ -1,0 +1,86 @@
+{
+  "schema_version": "inference_data.environment.v1",
+  "model": "K2-Horizon-7B",
+  "cell": {
+    "topology": "1x1",
+    "runtime": "vllm",
+    "dtype": "bf16",
+    "gpus": 1
+  },
+  "components": {
+    "inferencex": {
+      "name": "InferenceX",
+      "repository": "https://github.com/SemiAnalysisAI/InferenceX",
+      "commit": "4ab85c1e33b66d6bd5a3087b3de5ba3e86cbbe80"
+    },
+    "vllm": {
+      "name": "vLLM",
+      "repository": "https://github.com/vllm-project/vllm",
+      "commit": "3df4ae153eb385e27b52f26c81f8edb9e20b9984",
+      "image": "vllm/vllm-openai:nightly-3df4ae153eb385e27b52f26c81f8edb9e20b9984",
+      "version": "0.29.1rc1.dev452+g3df4ae153"
+    }
+  },
+  "system": {
+    "devices": [
+      "NVIDIA H200"
+    ],
+    "device_count": 1,
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-153-generic-x86_64-with-glibc2.39",
+    "torch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "nccl": "2.29.7",
+    "packages": {
+      "vllm": "0.29.1rc1.dev452+g3df4ae153",
+      "torch": "2.13.0+cu130",
+      "triton": "3.7.1",
+      "transformers": "5.17.0"
+    }
+  },
+  "server_launch": {
+    "1": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "<models-root>/7b-bf16-30d38fecf8a609873ae73a617f5c714286e1f565",
+        "--served-model-name",
+        "7b-bf16-vllm-g1-tp-ep-maxc",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "59987",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--max-model-len",
+        "524288",
+        "--tensor-parallel-size",
+        "1",
+        "--max-num-seqs",
+        "1",
+        "--no-enable-prefix-caching",
+        "--generation-config",
+        "vllm"
+      ],
+      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/7b-bf16-30d38fecf8a609873ae73a617f5c714286e1f565 --served-model-name 7b-bf16-vllm-g1-tp-ep-maxc --host 127.0.0.1 --port 59987 --dtype bfloat16 --trust-remote-code --max-model-len 524288 --tensor-parallel-size 1 --max-num-seqs 1 --no-enable-prefix-caching --generation-config vllm"
+    }
+  },
+  "client_request_example": {
+    "base_url": "http://127.0.0.1:59987",
+    "model": "7b-bf16-vllm-g1-tp-ep-maxc",
+    "concurrency": 1,
+    "seed": 3,
+    "sequence_length": 524288,
+    "output_tokens": 1,
+    "prompt_ids": {
+      "count": 1,
+      "tokens_per_prompt": [
+        524287
+      ],
+      "note": "exact token-id lists omitted for size; fixed token ids drawn once from the model tokenizer, identical across the three runs of a point"
+    }
+  }
+}
