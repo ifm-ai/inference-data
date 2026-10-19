@@ -1,0 +1,70 @@
+{
+  "concurrency": 1,
+  "observed_running": 1,
+  "qualification": {
+    "aggregate_decode_tps": 70.62203719888056,
+    "aggregate_prefill_tps": 8.82775464986007,
+    "passed": true,
+    "reasons": []
+  },
+  "scope": "token completion and admission; server health audit remains separate",
+  "streams": [
+    {
+      "passed": true,
+      "path": "request-0.sse",
+      "positions": {
+        "bins": [],
+        "timing_source": "upstream TTFT and ITL aligned to raw generated token IDs",
+        "unobserved_boundaries": []
+      },
+      "reasons": [],
+      "sha256": "1281c8e111c6e343c2a048ee62cd5058ada00df4583ae02f751bf62d03c4cbd8"
+    }
+  ],
+  "token_ids_requested": true,
+  "upstream": {
+    "benchmark_end_time_unix": 1792300055.2014117,
+    "benchmark_start_time_unix": 1792300040.7016885,
+    "completed": 1,
+    "duration": 14.499723324552178,
+    "errors": [
+      ""
+    ],
+    "input_lens": [
+      128
+    ],
+    "output_lens": [
+      1024
+    ],
+    "output_throughput": 70.62203719888056,
+    "request_goodput:": null,
+    "request_throughput": 0.0689668332020318,
+    "total_input_tokens": 128,
+    "total_output_tokens": 1024,
+    "total_token_throughput": 79.44979184874063,
+    "ttfts": [
+      0.02606031997129321
+    ],
+    "itl_us_stats": [
+      {
+        "count": 1023,
+        "mean": 14143.069403714566,
+        "min": 3564,
+        "p50": 14129,
+        "p90": 14887,
+        "p95": 15047,
+        "p99": 15267,
+        "max": 25033
+      }
+    ]
+  },
+  "_slim": {
+    "version": 3,
+    "dropped": [
+      "_archive",
+      "_encoding",
+      "upstream.itls_us"
+    ],
+    "percentile_method": "nearest-rank ceil(n*f)"
+  }
+}
