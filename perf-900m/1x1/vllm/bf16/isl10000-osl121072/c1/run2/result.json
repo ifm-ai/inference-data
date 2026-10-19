@@ -1,0 +1,267 @@
+{
+  "concurrency": 1,
+  "observed_running": 1,
+  "qualification": {
+    "aggregate_decode_tps": 382.448636829621,
+    "aggregate_prefill_tps": 31.588789786953196,
+    "passed": true,
+    "reasons": []
+  },
+  "scope": "token completion and admission; server health audit remains separate",
+  "streams": [
+    {
+      "passed": true,
+      "path": "request-0.sse",
+      "positions": {
+        "bins": [
+          {
+            "duration_s": 7.569066333991941,
+            "end_context": 16384,
+            "output_tokens": 4096,
+            "request_decode_tps": 541.1499674147738,
+            "start_context": 12288
+          },
+          {
+            "duration_s": 7.837172008003108,
+            "end_context": 20480,
+            "output_tokens": 4096,
+            "request_decode_tps": 522.6375018715011,
+            "start_context": 16384
+          },
+          {
+            "duration_s": 8.113947072008159,
+            "end_context": 24576,
+            "output_tokens": 4096,
+            "request_decode_tps": 504.8098001687188,
+            "start_context": 20480
+          },
+          {
+            "duration_s": 8.327273668022826,
+            "end_context": 28672,
+            "output_tokens": 4096,
+            "request_decode_tps": 491.87767368915206,
+            "start_context": 24576
+          },
+          {
+            "duration_s": 8.551716682966799,
+            "end_context": 32768,
+            "output_tokens": 4096,
+            "request_decode_tps": 478.9681594759051,
+            "start_context": 28672
+          },
+          {
+            "duration_s": 8.768636477994733,
+            "end_context": 36864,
+            "output_tokens": 4096,
+            "request_decode_tps": 467.1193760032232,
+            "start_context": 32768
+          },
+          {
+            "duration_s": 8.986422483983915,
+            "end_context": 40960,
+            "output_tokens": 4096,
+            "request_decode_tps": 455.79873495822295,
+            "start_context": 36864
+          },
+          {
+            "duration_s": 9.203814056003466,
+            "end_context": 45056,
+            "output_tokens": 4096,
+            "request_decode_tps": 445.03289343707024,
+            "start_context": 40960
+          },
+          {
+            "duration_s": 9.414645127020776,
+            "end_context": 49152,
+            "output_tokens": 4096,
+            "request_decode_tps": 435.06685007639385,
+            "start_context": 45056
+          },
+          {
+            "duration_s": 9.642127147002611,
+            "end_context": 53248,
+            "output_tokens": 4096,
+            "request_decode_tps": 424.8025293125592,
+            "start_context": 49152
+          },
+          {
+            "duration_s": 9.861335019988474,
+            "end_context": 57344,
+            "output_tokens": 4096,
+            "request_decode_tps": 415.3595828250025,
+            "start_context": 53248
+          },
+          {
+            "duration_s": 10.078931235009804,
+            "end_context": 61440,
+            "output_tokens": 4096,
+            "request_decode_tps": 406.3922954223842,
+            "start_context": 57344
+          },
+          {
+            "duration_s": 10.292783583980054,
+            "end_context": 65536,
+            "output_tokens": 4096,
+            "request_decode_tps": 397.94871490109995,
+            "start_context": 61440
+          },
+          {
+            "duration_s": 10.526567946013529,
+            "end_context": 69632,
+            "output_tokens": 4096,
+            "request_decode_tps": 389.11067890377115,
+            "start_context": 65536
+          },
+          {
+            "duration_s": 10.757397937006317,
+            "end_context": 73728,
+            "output_tokens": 4096,
+            "request_decode_tps": 380.76122348411315,
+            "start_context": 69632
+          },
+          {
+            "duration_s": 10.985435492999386,
+            "end_context": 77824,
+            "output_tokens": 4096,
+            "request_decode_tps": 372.8573166362162,
+            "start_context": 73728
+          },
+          {
+            "duration_s": 11.231485448020976,
+            "end_context": 81920,
+            "output_tokens": 4096,
+            "request_decode_tps": 364.6890715352107,
+            "start_context": 77824
+          },
+          {
+            "duration_s": 11.442788189975545,
+            "end_context": 86016,
+            "output_tokens": 4096,
+            "request_decode_tps": 357.95471628045175,
+            "start_context": 81920
+          },
+          {
+            "duration_s": 11.667911283031572,
+            "end_context": 90112,
+            "output_tokens": 4096,
+            "request_decode_tps": 351.048263964497,
+            "start_context": 86016
+          },
+          {
+            "duration_s": 11.894410390988924,
+            "end_context": 94208,
+            "output_tokens": 4096,
+            "request_decode_tps": 344.3634333571579,
+            "start_context": 90112
+          },
+          {
+            "duration_s": 12.099206707964186,
+            "end_context": 98304,
+            "output_tokens": 4096,
+            "request_decode_tps": 338.53459147068276,
+            "start_context": 94208
+          },
+          {
+            "duration_s": 12.336601817049086,
+            "end_context": 102400,
+            "output_tokens": 4096,
+            "request_decode_tps": 332.0201187282677,
+            "start_context": 98304
+          },
+          {
+            "duration_s": 12.558578090975061,
+            "end_context": 106496,
+            "output_tokens": 4096,
+            "request_decode_tps": 326.15157307844413,
+            "start_context": 102400
+          },
+          {
+            "duration_s": 12.820165285025723,
+            "end_context": 110592,
+            "output_tokens": 4096,
+            "request_decode_tps": 319.4966608413568,
+            "start_context": 106496
+          },
+          {
+            "duration_s": 13.045789125957526,
+            "end_context": 114688,
+            "output_tokens": 4096,
+            "request_decode_tps": 313.9710415715741,
+            "start_context": 110592
+          },
+          {
+            "duration_s": 13.242483113019262,
+            "end_context": 118784,
+            "output_tokens": 4096,
+            "request_decode_tps": 309.3075494257602,
+            "start_context": 114688
+          },
+          {
+            "duration_s": 13.469901581003796,
+            "end_context": 122880,
+            "output_tokens": 4096,
+            "request_decode_tps": 304.08536954542177,
+            "start_context": 118784
+          },
+          {
+            "duration_s": 13.692017118970398,
+            "end_context": 126976,
+            "output_tokens": 4096,
+            "request_decode_tps": 299.152415923068,
+            "start_context": 122880
+          }
+        ],
+        "timing_source": "upstream TTFT and ITL aligned to raw generated token IDs",
+        "unobserved_boundaries": []
+      },
+      "reasons": [],
+      "sha256": "3ef84b00354372723815f220fdab340a026ec1f1d8e78bbd9892ae78c69bab2d"
+    }
+  ],
+  "token_ids_requested": true,
+  "upstream": {
+    "benchmark_end_time_unix": 1790372782.3028116,
+    "benchmark_start_time_unix": 1790372465.7348123,
+    "completed": 1,
+    "duration": 316.5679998329724,
+    "errors": [
+      ""
+    ],
+    "input_lens": [
+      10000
+    ],
+    "output_lens": [
+      121071
+    ],
+    "output_throughput": 382.448636829621,
+    "request_goodput:": null,
+    "request_throughput": 0.0031588789786953196,
+    "total_input_tokens": 10000,
+    "total_output_tokens": 121071,
+    "total_token_throughput": 414.03742661657424,
+    "ttfts": [
+      0.0854196340078488
+    ],
+    "itl_us_stats": [
+      {
+        "count": 120496,
+        "mean": 2626.468480281503,
+        "min": 9,
+        "p50": 2605,
+        "p90": 3299,
+        "p95": 3398,
+        "p99": 5499,
+        "max": 11540
+      }
+    ]
+  },
+  "_slim": {
+    "version": 3,
+    "dropped": [
+      "_archive",
+      "_encoding",
+      "upstream.itls_us"
+    ],
+    "percentile_method": "nearest-rank ceil(n*f)"
+  }
+}
