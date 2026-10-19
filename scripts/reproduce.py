@@ -2,7 +2,7 @@
 """Emit (or execute) the exact commands that reproduce a dataset.
 
 This script is identical across the repository and lives at
-``scripts/reproduce.py`` at the root of every ``perf-data-<model>`` branch.
+``scripts/reproduce.py`` at the root of every ``perf/<model>`` branch.
 It scans ``--dataset-root`` (default: the repository root, i.e. two levels
 up from this script) for cell ``environment.json`` files and, for every
 measured ``point`` (one ``<topology>/<runtime>/<dtype>/isl<I>-osl<O>/c<N>``
@@ -156,7 +156,7 @@ def iter_cells(dataset_root: Path) -> list[Path]:
     """environment.json paths of every cell found below the dataset root.
 
     Search depth is not fixed, so the script works from a branch root (cells
-    under ``perf-<model>/...``) as well as from inside a dataset
+    under ``perf/<model>/...``) as well as from inside a dataset
     directory (cells one level down). Paths are kept relative to
     ``dataset_root`` so emitted output mirrors the checked-out layout.
     """
