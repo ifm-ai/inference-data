@@ -34,14 +34,13 @@ Every measurement of this dataset was taken with these component versions
           environment.json     # component versions + exact launch commands
           isl<I>-osl<O>/       # requested token counts
             c<N>/              # concurrency
-              run{1,2,3}/result.json
+              run{1,2,3}_results.json.gz   # one gzipped record per repetition
 ```
 
 ## Cells in this dataset
 
 Points = one `(topology, runtime, dtype, ISL, OSL, concurrency)`; leaves =
-individual `run{1,2,3}` records. **69 points /
-207 leaves / 0.5 MB.**
+individual `run{1,2,3}` records. **69 points / 207 leaves / 12.9 MB.**
 
 | cell (topology/runtime/dtype) | points | leaves |
 |---|---:|---:|
@@ -55,15 +54,16 @@ individual `run{1,2,3}` records. **69 points /
 ## Record schema
 
 Leaves carry the InferenceX benchmark client output for one repetition,
-slimmed for publication (`_slim` records the transform version and drop
-list):
+**in full — per-block timing retained** — each as its own gzipped file
+(`zcat run1_results.json.gz | jq .`; ~7× smaller than the raw record). No
+`_slim` or other transform marker field is added:
 
 * kept: `concurrency`, `observed_running`, `scope`, `token_ids_requested`,
   `qualification` (pass flag, aggregate prefill/decode TPS), `streams` pass
-  metadata, and all `upstream` aggregates (duration, token totals,
-  throughputs, per-request `ttfts`, `input_lens`, `output_lens`, errors);
-* dropped: `upstream.itls_us` (raw per-token inter-token-latency arrays —
-  99.9% of record bytes);
+  metadata, and all `upstream` aggregates **and arrays** — duration, token
+  totals, throughputs, per-request `ttfts`, `input_lens`, `output_lens`,
+  errors, and `upstream.itls_us` (per-token inter-token-latency arrays in
+  integer microseconds, one array per request — the per-block timing data);
 * added: `upstream.itl_us_stats` — per-request nearest-rank (`ceil(n·f)`)
   ITL statistics `{count, mean, min, p50, p90, p95, p99, max}` in integer
   microseconds, aligned with the per-request arrays.
