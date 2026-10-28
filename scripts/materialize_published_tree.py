@@ -2,11 +2,10 @@
 """Materialize the published Chapter 8.1 dataset into this repository.
 
 Reads the uncompressed campaign archive tree (schema
-``perfhc.inference_perf_data.run.v1``) and writes, under
-``chapter-8-1/k2-horizon/`` (override with ``--out``), one gzipped
-``run<N>_results.json.gz`` per leaf in the point layout, mapped onto the
-published directory spellings (``K2-Horizon-<X>`` -> ``k2-horizon-<x>``
-with ``MoVA`` preserved).
+``perfhc.inference_perf_data.run.v1``) and writes, under ``perf/``
+(override with ``--out``), one gzipped ``run<N>_results.json.gz`` per leaf
+in the point layout, mapped onto the published directory spellings
+(``K2-Horizon-<X>`` -> ``k2-horizon-<x>`` with ``MoVA`` preserved).
 
 Models whose mapped output directory does not already exist under ``--out``
 in the repo are skipped with a warning (publish scope follows what the
@@ -15,13 +14,15 @@ must already carry its ``environment.json`` in the repo (preserved from the
 existing publication; ``scripts/reproduce.py`` consumes it) — a missing one
 fails a gate.
 
-Records are transformed by ``tools/publish_run.py``: the full record
+Records are transformed by ``scripts/publish_run.py``: the full record
 including the ``upstream.itls_us`` per-block timing arrays, plus the added
 ``upstream.itl_us_stats``. Each ``.json.gz`` is an independently
-decompressible gzip stream (~7× smaller than the raw record). The two
-lineage manifests and ``audit.json`` are written to ``--meta-out``
-(default: the parent of ``--out``) with repo-relative paths. Every write is
-validated:
+decompressible gzip stream (~7× smaller than the raw record), tracked
+through Git LFS (``.gitattributes``: ``*.gz``).
+
+The lineage manifests and ``audit.json`` are NOT shipped in the repo;
+pass ``--meta-out <dir>`` to write them somewhere for inspection (e.g.
+``/tmp``). Every write is validated:
 
 * each ``c<N>`` point ships exactly ``run1_results.json.gz``,
   ``run2_results.json.gz``, ``run3_results.json.gz`` — ``run4+`` is always
@@ -39,8 +40,7 @@ validated:
 * every written ``.json.gz`` is re-opened and reparsed as JSON.
 
 Outputs are deterministic (gzip mtime=0): identical archive input yields
-byte-identical files. Exits non-zero on the first violated gate and writes
-``audit.json`` next to the two manifests with the reconciled counts.
+byte-identical files. Exits non-zero on the first violated gate.
 Idempotent: re-running rewrites the tree from the current archive state.
 """
 
@@ -103,10 +103,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--source", required=True, help="uncompressed archive root (contains K2-Horizon-*/ )")
     parser.add_argument("--repo", required=True, help="inference-perf-data worktree root")
-    parser.add_argument("--out", default="chapter-8-1/k2-horizon",
+    parser.add_argument("--out", default="perf",
                         help="repo-relative output root for the published tree")
     parser.add_argument("--meta-out",
-                        help="repo-relative directory for manifests + audit (default: parent of --out)")
+                        help="optional directory (outside the repo) for the lineage manifests "
+                             "and audit.json; omitted: none are written")
     parser.add_argument("--models",
                         help="comma-separated archive model names to publish (default: all whose "
                              "mapped directory already exists under --out)")
@@ -121,7 +122,7 @@ def main() -> int:
     repo_root = Path(args.repo)
     out_rel = args.out.strip("/")
     out_root = repo_root / out_rel
-    meta_dir = repo_root / args.meta_out.strip("/") if args.meta_out else repo_root / Path(out_rel).parent
+    meta_dir = Path(args.meta_out) if args.meta_out else None
     allow = set(args.models.split(",")) if args.models else None
 
     points = 0
@@ -199,63 +200,67 @@ def main() -> int:
         points += 1
         cells[(rel[0], rel[1], rel[2], rel[3])] = cells.get((rel[0], rel[1], rel[2], rel[3]), 0) + 1
 
-    # Manifests: rewrite to repo-relative, keep only records whose leaf shipped.
-    shipped = {str(p.relative_to(out_root)) for p in out_root.rglob(f"run*{SUFFIX}")}
-    for src_name, dst_name in MANIFESTS.items():
-        src_file = source / src_name
-        if not src_file.is_file():
-            continue
-        records = json.loads(src_file.read_text())
-        scrub_obj(records)
-        kept = []
-        for record in records:
-            dest_abs = record.get("destination", "")
-            marker = "/models/K2-Horizon-"
-            if marker in dest_abs:
-                dest_rel = dest_abs.split(marker, 1)[1]
-                dest_rel = "K2-Horizon-" + dest_rel
-            else:
-                dest_rel = dest_abs
-            if dest_rel.startswith("K2-Horizon-"):
-                head, _, tail = dest_rel.partition("/")
-                dest_rel = f"{model_dir(head)}/{tail}"
-            dest_rel = LEAF_RE.sub(rf"/\1{SUFFIX}", dest_rel)
-            record["destination"] = f"{out_rel}/{dest_rel}"
-            if dest_rel in shipped:
-                kept.append(record)
-        out_file = meta_dir / dst_name
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        text = json.dumps(kept, indent=2) + "\n"
-        for token in FORBIDDEN:
-            if token in text:
-                raise SystemExit(f"gate: forbidden reference {token!r} in manifest {src_name}")
-        out_file.write_text(text)
-        print(f"manifest {dst_name}: {len(records)} lineage records -> {len(kept)} shipped")
+    if meta_dir is not None:
+        # Lineage manifests: rewrite to repo-relative shipped paths, keep only
+        # records whose leaf shipped. Inspection only — not shipped in the repo.
+        shipped = {str(p.relative_to(out_root)) for p in out_root.rglob(f"run*{SUFFIX}")}
+        for src_name, dst_name in MANIFESTS.items():
+            src_file = source / src_name
+            if not src_file.is_file():
+                continue
+            records = json.loads(src_file.read_text())
+            scrub_obj(records)
+            kept = []
+            for record in records:
+                dest_abs = record.get("destination", "")
+                marker = "/models/K2-Horizon-"
+                if marker in dest_abs:
+                    dest_rel = dest_abs.split(marker, 1)[1]
+                    dest_rel = "K2-Horizon-" + dest_rel
+                else:
+                    dest_rel = dest_abs
+                if dest_rel.startswith("K2-Horizon-"):
+                    head, _, tail = dest_rel.partition("/")
+                    dest_rel = f"{model_dir(head)}/{tail}"
+                dest_rel = LEAF_RE.sub(rf"/\1{SUFFIX}", dest_rel)
+                record["destination"] = f"{out_rel}/{dest_rel}"
+                if dest_rel in shipped:
+                    kept.append(record)
+            out_file = meta_dir / dst_name
+            out_file.parent.mkdir(parents=True, exist_ok=True)
+            text = json.dumps(kept, indent=2) + "\n"
+            for token in FORBIDDEN:
+                if token in text:
+                    raise SystemExit(f"gate: forbidden reference {token!r} in manifest {src_name}")
+            out_file.write_text(text)
+            print(f"manifest {dst_name}: {len(records)} lineage records -> {len(kept)} shipped")
 
-    audit = {
-        "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "source": scrub(str(source)) if not scrub(str(source)).startswith("/") else "<local campaign archive root>",
-        "points": points,
-        "leaves": leaves,
-        "bytes_raw": bytes_raw,
-        "bytes_gz": bytes_gz,
-        "cells": {"/".join(k): v for k, v in sorted(cells.items())},
-        "skipped_models": skipped,
-        "partial_points_skipped": partial,
-        "gates": {
-            "run4_refused": True,
-            "partial_points_are_fatal_unless_waived": not args.allow_partial,
-            "timing_arrays_present": not args.allow_missing_timing,
-            "no_slim_marker": True,
-            "no_chapter81_refs": True,
-            "no_absolute_paths": True,
-            "env_json_present": True,
-            "shipped_files_reparsed": True,
-        },
-    }
-    audit_path = meta_dir / "audit.json"
-    audit_path.write_text(json.dumps(audit, indent=2) + "\n")
-    print(f"points={points} leaves={leaves} raw={bytes_raw/1e6:.1f} MB gz={bytes_gz/1e6:.1f} MB -> {audit_path}")
+        audit = {
+            "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+            "source": scrub(str(source)) if not scrub(str(source)).startswith("/") else "<local campaign archive root>",
+            "points": points,
+            "leaves": leaves,
+            "bytes_raw": bytes_raw,
+            "bytes_gz": bytes_gz,
+            "cells": {"/".join(k): v for k, v in sorted(cells.items())},
+            "skipped_models": skipped,
+            "partial_points_skipped": partial,
+            "gates": {
+                "run4_refused": True,
+                "partial_points_are_fatal_unless_waived": not args.allow_partial,
+                "timing_arrays_present": not args.allow_missing_timing,
+                "no_slim_marker": True,
+                "no_chapter81_refs": True,
+                "no_absolute_paths": True,
+                "env_json_present": True,
+                "shipped_files_reparsed": True,
+            },
+        }
+        audit_path = meta_dir / "audit.json"
+        audit_path.parent.mkdir(parents=True, exist_ok=True)
+        audit_path.write_text(json.dumps(audit, indent=2) + "\n")
+        print(f"audit -> {audit_path}")
+    print(f"points={points} leaves={leaves} raw={bytes_raw/1e6:.1f} MB gz={bytes_gz/1e6:.1f} MB")
     return 0
 
 
