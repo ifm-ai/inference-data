@@ -6,7 +6,7 @@ This script is identical across the repository and lives at
 It scans ``--dataset-root`` (default: the repository root, i.e. two levels
 up from this script) for cell ``environment.json`` files and, for every
 measured ``point`` (one ``<topology>/<runtime>/<dtype>/isl<I>-osl<O>/c<N>``
-directory holding ``run1..run3`` records), it generates:
+directory shipping its three repetition records), it generates:
 
 1. **One server launch command**, taken verbatim from the cell's
    ``environment.json`` (``server_launch[<concurrency>].argv``). This is the
@@ -51,9 +51,10 @@ from pathlib import Path
 #
 # A *cell* is one <topology>/<runtime>/<dtype> directory carrying an
 # environment.json; a *point* is one isl<I>-osl<O>/c<N> directory below it;
-# each point holds RUNS repetitions in run<k>/ subdirectories. The dataset
-# root is --dataset-root, defaulting to the repository root when script and
-# dataset are checked out together.
+# each point ships RUNS repetitions as run<k>_results.json.gz files
+# (legacy checkouts may hold run<k>/result.json instead — both are
+# recognized). The dataset root is --dataset-root, defaulting to the
+# repository root when script and dataset are checked out together.
 
 CELL_GLOB = "*x*/*/*/environment.json"   # <topo>/<runtime>/<dtype>/environment.json
 RUNTIMES = ("vllm", "sglang")            # sane filter for the glob above
@@ -170,8 +171,10 @@ def iter_cells(dataset_root: Path) -> list[Path]:
 def iter_points(cell_env: Path):
     """Yield ``(isl, osl, conc, conc_dir)`` for each published point of a cell.
 
-    A directory only counts as a point if it actually holds run records —
-    mirroring what the dataset ships.
+    A directory only counts as a point if it actually ships run records —
+    the gzipped ``run<k>_results.json.gz`` files (or, in legacy checkouts,
+    ``run<k>/result.json``) — mirroring what the dataset ships. Record
+    contents are never read; only their presence is detected.
     """
     for isl_dir in sorted(cell_env.parent.glob("isl*-osl*")):
         point_match = POINT_RE.fullmatch(isl_dir.name)
@@ -180,7 +183,9 @@ def iter_points(cell_env: Path):
         isl, osl = int(point_match.group(1)), int(point_match.group(2))
         for conc_dir in sorted(isl_dir.glob("c*")):
             conc_match = CONC_RE.fullmatch(conc_dir.name)
-            if not conc_match or not any(conc_dir.glob("run*/result.json")):
+            ships_runs = (any(conc_dir.glob("run*_results.json.gz"))
+                          or any(conc_dir.glob("run*/result.json")))
+            if not conc_match or not ships_runs:
                 continue
             yield isl, osl, int(conc_match.group(1)), conc_dir
 
