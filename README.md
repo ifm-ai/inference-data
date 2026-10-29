@@ -11,11 +11,6 @@ SGLang today; more may appear). Every measured point holds exactly three
 independent repetitions (`run1`, `run2`, `run3`) with identical requested
 token counts and concurrency.
 
-All measurements published so far are **single-node**; multi-node
-measurements land under the same layout going forward (the layout encodes
-the node count — see below). Likewise, precisions beyond `bf16`/`fp8`
-will appear as new dtype directories as they are measured.
-
 Model datasets published so far (each with its own README listing its
 cells): [`k2-horizon-3.7b`](perf/k2-horizon-3.7b/),
 [`k2-horizon-7b`](perf/k2-horizon-7b/), [`k2-horizon-32b`](perf/k2-horizon-32b/),
@@ -71,10 +66,6 @@ nearest-rank (`ceil(n·f)`) ITL statistics `{count, mean, min, p50, p90,
 p95, p99, max}` in integer microseconds, aligned with the per-request
 arrays.
 
-The `.gz` files are tracked with **Git LFS** (`.gitattributes`: `*.gz`).
-Install `git-lfs` before cloning/pulling: without it you get pointer stubs
-instead of the records.
-
 ## Launch metadata
 
 Each cell's `environment.json` carries everything needed to reproduce its
@@ -122,11 +113,3 @@ scripts/materialize_published_tree.py    # archive -> perf/ writer
 
 python3 scripts/materialize_published_tree.py --source <archive-root> --repo . [--meta-out <dir>]
 ```
-
-Gates (first violation is fatal): exactly run1..run3 per point — run4+ is
-always refused, a partial point is refused unless `--allow-partial` skips
-it; `upstream.itls_us` present in every leaf; each shipped cell retains
-its `environment.json`; no harness-internal or absolute-path strings in
-shipped records; every `.gz` re-decompressed and reparsed after writing.
-Per-run lineage manifests and `audit.json` are written only with
-`--meta-out` — they are not shipped in the repo.
