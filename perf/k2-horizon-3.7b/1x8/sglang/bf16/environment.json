@@ -1,0 +1,92 @@
+{
+  "schema_version": "inference_data.environment.v1",
+  "model": "K2-Horizon-3.7B",
+  "cell": {
+    "topology": "1x8",
+    "runtime": "sglang",
+    "dtype": "bf16",
+    "gpus": 8
+  },
+  "components": {
+    "inferencex": {
+      "name": "InferenceX",
+      "repository": "https://github.com/SemiAnalysisAI/InferenceX",
+      "commit": "4ab85c1e33b66d6bd5a3087b3de5ba3e86cbbe80"
+    },
+    "sglang": {
+      "name": "SGLang",
+      "repository": "https://github.com/sgl-project/sglang",
+      "commit": "94602c9c2b7cbdb8efd5c52802dac6a1c180089e",
+      "image": "lmsysorg/sglang:v0.5.20",
+      "version": "0.5.20"
+    }
+  },
+  "system": {
+    "devices": [
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200"
+    ],
+    "device_count": 8,
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-153-generic-x86_64-with-glibc2.39",
+    "torch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "nccl": "2.29.7",
+    "packages": {
+      "sglang": "0.5.20",
+      "torch": "2.13.0+cu130",
+      "triton": "3.7.1",
+      "transformers": "5.12.1"
+    }
+  },
+  "server_launch": {
+    "1": {
+      "argv": [
+        "/opt/sglang/bin/python3",
+        "-m",
+        "sglang.launch_server",
+        "--model-path",
+        "<models-root>/3.7b-bf16-09568bab0d7ee4152a12ee13c21902ca910d15b2",
+        "--served-model-name",
+        "3.7b-bf16-sglang-g8",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "46563",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--context-length",
+        "524288",
+        "--tp-size",
+        "8",
+        "--max-running-requests",
+        "1",
+        "--disable-radix-cache",
+        "--enable-metrics"
+      ],
+      "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/3.7b-bf16-09568bab0d7ee4152a12ee13c21902ca910d15b2 --served-model-name 3.7b-bf16-sglang-g8 --host 127.0.0.1 --port 46563 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 8 --max-running-requests 1 --disable-radix-cache --enable-metrics"
+    }
+  },
+  "client_request_example": {
+    "base_url": "http://127.0.0.1:46563",
+    "model": "3.7b-bf16-sglang-g8",
+    "concurrency": 1,
+    "seed": 3,
+    "sequence_length": 524288,
+    "output_tokens": 524287,
+    "prompts": {
+      "count": 1,
+      "tokens_per_prompt": [
+        1
+      ],
+      "note": "exact token-id lists omitted for size; fixed token ids drawn once from the model tokenizer, identical across the three runs of a point"
+    }
+  }
+}
