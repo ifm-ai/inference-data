@@ -46,6 +46,34 @@
     }
   },
   "server_launch": {
+    "1": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "<models-root>/32b-bf16-ac4095895abb122a9a6da7de2b603174cd7a0146",
+        "--served-model-name",
+        "32b-bf16-vllm-g8",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "50789",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--max-model-len",
+        "524288",
+        "--tensor-parallel-size",
+        "8",
+        "--max-num-seqs",
+        "1",
+        "--no-enable-prefix-caching",
+        "--generation-config",
+        "vllm"
+      ],
+      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/32b-bf16-ac4095895abb122a9a6da7de2b603174cd7a0146 --served-model-name 32b-bf16-vllm-g8 --host 127.0.0.1 --port 50789 --dtype bfloat16 --trust-remote-code --max-model-len 524288 --tensor-parallel-size 8 --max-num-seqs 1 --no-enable-prefix-caching --generation-config vllm"
+    },
     "2": {
       "argv": [
         "/usr/bin/python3",
