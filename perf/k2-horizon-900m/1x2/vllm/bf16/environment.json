@@ -76,11 +76,11 @@
         "serve",
         "<models-root>/900m-bf16-9fa6faa55fe1c9eb008bb241cc6fb7e4536d0e91",
         "--served-model-name",
-        "900m-bf16-vllm-g2",
+        "900m-bf16-vllm-g2-tp-ep-maxc",
         "--host",
         "127.0.0.1",
         "--port",
-        "59889",
+        "50583",
         "--dtype",
         "bfloat16",
         "--trust-remote-code",
@@ -89,12 +89,12 @@
         "--tensor-parallel-size",
         "2",
         "--max-num-seqs",
-        "1",
+        "2",
         "--no-enable-prefix-caching",
         "--generation-config",
         "vllm"
       ],
-      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/900m-bf16-9fa6faa55fe1c9eb008bb241cc6fb7e4536d0e91 --served-model-name 900m-bf16-vllm-g2 --host 127.0.0.1 --port 59889 --dtype bfloat16 --trust-remote-code --max-model-len 131072 --tensor-parallel-size 2 --max-num-seqs 1 --no-enable-prefix-caching --generation-config vllm"
+      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/900m-bf16-9fa6faa55fe1c9eb008bb241cc6fb7e4536d0e91 --served-model-name 900m-bf16-vllm-g2-tp-ep-maxc --host 127.0.0.1 --port 50583 --dtype bfloat16 --trust-remote-code --max-model-len 131072 --tensor-parallel-size 2 --max-num-seqs 2 --no-enable-prefix-caching --generation-config vllm"
     }
   },
   "client_request_example": {

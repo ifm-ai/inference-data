@@ -23,6 +23,13 @@ Any disagreement is fatal: a receipt that does not describe the measurement is
 worse than a missing one. Existing ``server_launch["1"]`` entries are never
 overwritten.
 
+It also repairs two cells whose ``server_launch["2"]`` is byte-identical to
+their ``"1"`` entry: their c2 points were measured by the maxc-phase1
+search-capacity sweep, whose c2/ attempt holds the receipt that actually
+served them (--max-num-seqs 2). The duplicate is replaced only when the
+attempt's request shapes equal the cell's published c2 points, so a receipt
+that cannot be shown to serve the measurement is never installed.
+
 Usage:
     backfill_launch_receipts.py --repo <worktree> --incoming <archive .incoming>
         [--dry-run] [--models-root /mnt/weka/shrd/k2m/micah.villmow/models]
@@ -54,6 +61,19 @@ CONFIGS = {
 
 POINT_RE = re.compile(r"isl(\d+)-osl(\d+)")
 REQUEST_SEQ_RE = re.compile(r"isl-(\d+)-osl-(\d+)")
+
+# Cells whose published "2" entry is a copy of their "1" entry. Their c2
+# points came from the maxc-phase1 search-capacity sweep, whose c2/ attempt
+# holds the receipt that actually served it. Keys: cell dir -> receipt path
+# scaffold relative to the maxc-phase1 performance root.
+REPAIRS_C2 = {
+    "k2-horizon-900m/1x2/vllm/bf16": (
+        "900m-bf16-vllm-g2-tp-ep-maxc/search-capacity/c1/attempt-2593794/c2"
+    ),
+    "k2-horizon-MoVA-36b-a4b/1x4/vllm/bf16": (
+        "36b-mova-bf16-vllm-g4-tp-ep-maxc/search-capacity/c1/attempt-2593840/c2"
+    ),
+}
 
 
 def server_config(argv: list[str]) -> tuple:
@@ -108,12 +128,127 @@ def build_entry(argv: list[str], models_root: str) -> dict:
     return {"argv": published, "shell": shell}
 
 
+def attempt_points(attempt: Path) -> set[tuple[int, int]]:
+    """The (isl, osl) workpoints one search-capacity attempt measured.
+
+    The request files name the shapes only as decode-N / prefill-N; their
+    ``sequence_length`` and ``output_tokens`` fields hold the real counts.
+    A point is the rest of the context not spent on output:
+    ``isl = sequence_length - output_tokens``. Prefill and boundary requests
+    collapse to the same pair, decode to its own.
+    """
+    points = set()
+    for request in attempt.glob("*.request.json"):
+        data = json.loads(request.read_text())
+        length = data.get("sequence_length")
+        output = data.get("output_tokens")
+        if type(length) is not int or type(output) is not int or length <= output:
+            continue
+        points.add((length - output, output))
+    return points
+
+
+def repair_c2(
+    repo: Path,
+    maxc_performance: Path,
+    models_root: str,
+    *,
+    dry_run: bool,
+) -> int:
+    """Replace duplicated c2 entries with the receipt that served their points.
+
+    Fails a cell rather than overwrite it when the receipt it would install
+    cannot be shown to serve the cell's published c2 points, or when the
+    entry already present is not the c1 duplicate this repair exists for.
+    """
+    failures = 0
+    for cell_rel, attempt_rel in REPAIRS_C2.items():
+        cell = repo / "perf" / cell_rel
+        env_path = cell / "environment.json"
+        if not env_path.is_file():
+            print(f"SKIP {cell_rel}: no environment.json")
+            failures += 1
+            continue
+        environment = json.loads(env_path.read_text())
+        launches = environment.get("server_launch") or {}
+        one, two = launches.get("1"), launches.get("2")
+        if one is None:
+            print(f"SKIP {cell_rel}: no concurrency-1 entry to compare against")
+            failures += 1
+            continue
+        if two is not None and two != one:
+            print(f"KEEP {cell_rel}: c2 entry already distinct from c1")
+            continue
+
+        attempt = maxc_performance / attempt_rel
+        receipt = attempt / "launch.json"
+        if not receipt.is_file():
+            print(f"FAIL {cell_rel}: missing {receipt}")
+            failures += 1
+            continue
+        launch = json.loads(receipt.read_text())
+        argvs = launch.get("argv") or launch["shell"].split()
+
+        points = set()
+        for conc in cell.glob("isl*/c2"):
+            match = POINT_RE.fullmatch(conc.parent.name)
+            if match:
+                points.add((int(match.group(1)), int(match.group(2))))
+        served = attempt_points(attempt)
+        if points != served:
+            print(
+                f"FAIL {cell_rel}: published c2 points {sorted(points)} do not "
+                f"match attempt shapes {sorted(served)}"
+            )
+            failures += 1
+            continue
+        def value(flag: str) -> str | None:
+            return argvs[argvs.index(flag) + 1] if flag in argvs else None
+
+        if value("--max-num-seqs") != "2":
+            print(
+                f"FAIL {cell_rel}: receipt admits --max-num-seqs "
+                f"{value('--max-num-seqs')}, the points ran at concurrency 2"
+            )
+            failures += 1
+            continue
+        if server_config(argvs) == server_config(launches["1"]["argv"]):
+            print(f"FAIL {cell_rel}: receipt is indistinguishable from the c1 entry")
+            failures += 1
+            continue
+
+        entry = build_entry(argvs, models_root)
+        if "<models-root>/" not in " ".join(entry["argv"]):
+            print(f"FAIL {cell_rel}: checkpoint path not rewritten to the placeholder")
+            failures += 1
+            continue
+
+        verb = "would replace" if dry_run else "replaced"
+        print(
+            f"OK   {cell_rel}: {verb} c2 launch from {attempt_rel} "
+            f"({len(points)} points, --max-num-seqs 2)"
+        )
+        if not dry_run:
+            launches["2"] = entry
+            environment["server_launch"] = {
+                key: launches[key] for key in sorted(launches, key=int)
+            }
+            env_path.write_text(json.dumps(environment, indent=2) + "\n")
+    return failures
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--incoming", type=Path, required=True)
     parser.add_argument(
         "--models-root", default="/mnt/weka/shrd/k2m/micah.villmow/models"
+    )
+    parser.add_argument(
+        "--maxc-performance",
+        type=Path,
+        default=Path("/mnt/weka/shrd/k2m/micah.villmow/models/.chapter81-runs/maxc-phase1/performance"),
+        help="maxc-phase1 performance root, scanned only for the c2 repair map",
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
@@ -207,6 +342,13 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.dry_run:
             env_path.write_text(json.dumps(environment, indent=2) + "\n")
+
+    failures += repair_c2(
+        args.repo,
+        args.maxc_performance,
+        args.models_root,
+        dry_run=args.dry_run,
+    )
 
     return 1 if failures else 0
 
