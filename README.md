@@ -93,12 +93,14 @@ so it carries the placement explicitly. Every cell may declare:
 `cell.gpus`, `system.device_count` and `len(system.devices)` remain the
 *placement total* (`nodes × gpus_per_node`), so a reader that only knows
 the single-node fields still sees the full width. Such a cell's
-`server_launch.argv` carries the distributed flags that actually ran
-(`--nnodes`, `--node-rank`, host lists) and a
-`server_launch.distributed` block repeating `nodes` and `gpus_per_node`;
-`system.devices` lists every GPU across the allocation, so entries repeat.
-A directory such as `2x8/sglang/bf16` therefore means two nodes of eight
-GPUs each, sixteen devices in total — the multi-node analogue of `1x8`.
+`server_launch` entry carries `nodes`: one command per host in rank order,
+each the base `server_launch.argv` plus the `--dist-init-addr` and
+`--node-rank` that host ran. The wrapper appends those flags per node, so
+the base argv alone does not reproduce the placement — launch the `nodes`
+commands concurrently on their own hosts. `system.devices` lists every GPU
+across the allocation, so entries repeat. A directory such as
+`2x8/sglang/bf16` therefore means two nodes of eight GPUs each, sixteen
+devices in total — the multi-node analogue of `1x8`.
 
 All client requests share: seed 3, exact-token input (`input_lens` equals
 ISL), exact-token output (`output_lens` equals OSL), and the

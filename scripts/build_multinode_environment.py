@@ -62,13 +62,28 @@ def derive(
     gpus_per_node: int,
     devices: list[str],
     launch: dict,
+    ranks: list[dict],
 ) -> dict:
-    """Return the multi-node environment.json derived from a published sibling."""
+    """Return the multi-node environment.json derived from a published sibling.
+
+    ``ranks`` holds one entry per node with the ``node_rank`` and
+    ``dist_init_addr`` that node's server process reported. The base argv in
+    the receipt is not runnable on its own: the wrapper appends those two flags
+    per node, so publishing the base alone would not reproduce the placement.
+    """
     total = nodes * gpus_per_node
     if len(devices) != total:
         raise SystemExit(
             f"inventory lists {len(devices)} GPUs, placement needs {total}"
         )
+    if len(ranks) != nodes:
+        raise SystemExit(f"{len(ranks)} rank receipts for a {nodes}-node placement")
+    if sorted(rank["node_rank"] for rank in ranks) != list(range(nodes)):
+        raise SystemExit(f"rank receipts do not cover 0..{nodes - 1}: {ranks}")
+    addresses = {rank["dist_init_addr"] for rank in ranks}
+    if len(addresses) != 1:
+        raise SystemExit(f"rank receipts disagree on dist-init-addr: {addresses}")
+
     out = json.loads(json.dumps(sibling))  # preserve key order and shape
     out["cell"] = {
         **out["cell"],
@@ -81,22 +96,60 @@ def derive(
     system["devices"] = devices
     system["device_count"] = total
     system["nodes"] = nodes
-    # The launch receipt is the only truthful source for a two-node command;
-    # the sibling's single-node argv would claim a placement that never ran.
-    argv = list(launch["argv"])
+
+    # One command per node, in rank order, each carrying the flags the wrapper
+    # added. Launch them concurrently on their own hosts.
+    base = list(launch["argv"])
+    ordered = sorted(ranks, key=lambda rank: rank["node_rank"])
     out["server_launch"] = {
         "1": {
-            "argv": argv,
-            "shell": launch.get("shell") or " ".join(argv),
+            "argv": base,
+            "nodes": [
+                {
+                    "node_rank": rank["node_rank"],
+                    "argv": base
+                    + ["--dist-init-addr", rank["dist_init_addr"],
+                       "--node-rank", str(rank["node_rank"])],
+                }
+                for rank in ordered
+            ],
         }
     }
-    distributed = launch.get("distributed") or {}
-    if distributed:
-        out["server_launch"]["1"]["distributed"] = {
-            "nodes": distributed.get("nodes"),
-            "gpus_per_node": distributed.get("gpus_per_node"),
-        }
+    out["server_launch"]["1"]["shell"] = (
+        "run concurrently, one per node:\n"
+        + "\n".join(
+            f"[rank {entry['node_rank']}] " + " ".join(entry["argv"])
+            for entry in out["server_launch"]["1"]["nodes"]
+        )
+    )
     return out
+
+
+def rank_receipts(control: Path, nodes: int) -> list[dict]:
+    """``node_rank`` and ``dist_init_addr`` each server process reported.
+
+    The wrapper appends those flags per node, so they exist only in the
+    processes' own startup logs, not in the base launch receipt.
+    """
+    import re
+
+    logs = sorted(control.glob("server.log")) + sorted(control.glob("worker.log"))
+    ranks = []
+    for log in logs:
+        text = log.read_text(errors="ignore")
+        rank = re.search(r"'node_rank': (\d+)", text)
+        address = re.search(r"'dist_init_addr': '([^']+)'", text)
+        nnodes = re.search(r"'nnodes': (\d+)", text)
+        if not rank or not address:
+            continue
+        if nnodes and int(nnodes.group(1)) != nodes:
+            raise SystemExit(
+                f"{log} reports nnodes={nnodes.group(1)}, placement needs {nodes}"
+            )
+        ranks.append(
+            {"node_rank": int(rank.group(1)), "dist_init_addr": address.group(1)}
+        )
+    return ranks
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -105,29 +158,57 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--archive-point", type=Path, required=True)
     parser.add_argument("--nodes", type=int, required=True)
     parser.add_argument("--gpus-per-node", type=int, required=True)
+    parser.add_argument("--control", type=Path, required=True,
+                        help="multinode-control/<job> holding server.log and worker.log")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
 
-    sparse = list(args.archive_point.glob("*/c*/run*/result.json"))
-    if not sparse:
+    # Results are flat beside the receipts (<attempt>/prefill-1.json,
+    # decode-1.json); older archives nest them under run dirs.
+    sparse = (
+        list(args.archive_point.glob("*.json"))
+        or list(args.archive_point.glob("*/result.json"))
+        or list(args.archive_point.glob("*/run*/result.json"))
+        or list(args.archive_point.glob("*/c*/run*/result.json"))
+    )
+    measured = [
+        path
+        for path in sparse
+        if path.name.startswith(("prefill-", "decode-"))
+        and not path.name.endswith((".request.json", ".started.json"))
+    ]
+    if not measured:
         raise SystemExit(f"no archived runs under {args.archive_point}")
     # Every run of a point shares one launch; take the first that has a receipt.
+    # A measure attempt keeps it flat; older archives nest it under c<N>/.
     launch = None
-    inventory = None
-    for probe in sorted(args.archive_point.glob("*/c*")):
-        receipt = probe / "launch.json"
-        if receipt.is_file():
-            launch = json.loads(receipt.read_text())
+    for candidate in [
+        args.archive_point / "launch.json",
+        *sorted(args.archive_point.glob("*/c*/launch.json")),
+        *sorted(args.archive_point.glob("*/launch.json")),
+    ]:
+        if candidate.is_file():
+            launch = json.loads(candidate.read_text())
             break
-    for candidate in sorted(args.archive_point.rglob("gpu-inventory.csv")):
-        inventory = candidate
-        break
+    inventory = None
+    # The control dir holds the inventory the launcher collected across every
+    # node; one inside a point would describe a single host only.
+    for candidate in [
+        args.control / "gpu-inventory.csv",
+        *sorted(args.archive_point.rglob("gpu-inventory.csv")),
+    ]:
+        if candidate.is_file():
+            inventory = candidate
+            break
     if launch is None:
         raise SystemExit("no launch.json beside the archived runs")
     if inventory is None:
         raise SystemExit("no gpu-inventory.csv for the archived runs")
 
     devices = [row["name"] for row in load_inventory(inventory)]
+    ranks = rank_receipts(args.control, args.nodes)
+    if not ranks:
+        raise SystemExit(f"no server startup logs under {args.control}")
     sibling = json.loads(args.sibling.read_text())
     result = derive(
         sibling,
@@ -135,6 +216,7 @@ def main(argv: list[str] | None = None) -> int:
         gpus_per_node=args.gpus_per_node,
         devices=devices,
         launch=launch,
+        ranks=ranks,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
