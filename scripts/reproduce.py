@@ -339,7 +339,19 @@ def main() -> int:
             print(f"# === {point_rel} ===")
             if launch.get("note"):
                 print(f"  # note: {launch['note']}")
-            print(shlex.join(server))
+            # A multi-node cell ran one process per host. Printing only the base
+            # argv would not reproduce the placement, since the wrapper adds
+            # --dist-init-addr and --node-rank per node.
+            if launch.get("nodes"):
+                print(f"  # multi-node placement: run one command per host, "
+                      f"concurrently ({len(launch['nodes'])} nodes)")
+                for node in launch["nodes"]:
+                    command = [arg.replace("<models-root>", args.models_root)
+                               for arg in node["argv"]]
+                    print(f"  # node rank {node['node_rank']}")
+                    print(shlex.join(command))
+            else:
+                print(shlex.join(server))
             for run in RUNS:
                 print(shlex.join(client_argv(server, isl, osl, conc, run,
                                              point_out / f"run{run}")))
