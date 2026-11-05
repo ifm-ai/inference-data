@@ -63,6 +63,7 @@ def derive(
     devices: list[str],
     launch: dict,
     ranks: list[dict],
+    request: dict | None = None,
 ) -> dict:
     """Return the multi-node environment.json derived from a published sibling.
 
@@ -122,7 +123,46 @@ def derive(
             for entry in out["server_launch"]["1"]["nodes"]
         )
     )
+    # The sibling describes a different placement with a different served name,
+    # port and token counts; inheriting it would publish a request that this
+    # cell's runs never sent.
+    if request is not None:
+        prompts = request.get("prompts") or []
+        out["client_request_example"] = {
+            "base_url": request["base_url"],
+            "model": request["model"],
+            "concurrency": request["concurrency"],
+            "seed": request["seed"],
+            "sequence_length": request["sequence_length"],
+            "output_tokens": request["output_tokens"],
+            "prompts": {
+                "count": len(prompts) or 1,
+                "tokens_per_prompt": [
+                    len(prompts[0]) if prompts else len(request.get("prompt_ids") or [])
+                ],
+                "note": (
+                    "exact token-id lists omitted for size; fixed token ids drawn "
+                    "once from the model tokenizer, identical across the three runs "
+                    "of a point"
+                ),
+            },
+        }
+    else:
+        out.pop("client_request_example", None)
     return out
+
+
+def first_request(archive_point: Path) -> dict | None:
+    """The first measured request the attempt recorded, for the example block."""
+    for candidate in [*sorted(archive_point.glob("*.request.json")),
+                      *sorted(archive_point.glob("*/*.request.json"))]:
+        try:
+            data = json.loads(candidate.read_text())
+        except (OSError, ValueError):
+            continue
+        if "sequence_length" in data and "output_tokens" in data:
+            return data
+    return None
 
 
 def rank_receipts(control: Path, nodes: int) -> list[dict]:
@@ -217,6 +257,7 @@ def main(argv: list[str] | None = None) -> int:
         devices=devices,
         launch=launch,
         ranks=ranks,
+        request=first_request(args.archive_point),
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
