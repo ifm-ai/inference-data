@@ -1,0 +1,173 @@
+{
+  "schema_version": "inference_data.environment.v1",
+  "model": "K2-Horizon-375B-A23B",
+  "cell": {
+    "topology": "2x8",
+    "runtime": "sglang",
+    "dtype": "bf16",
+    "gpus": 16,
+    "nodes": 2,
+    "gpus_per_node": 8
+  },
+  "components": {
+    "inferencex": {
+      "name": "InferenceX",
+      "repository": "https://github.com/SemiAnalysisAI/InferenceX",
+      "commit": "4ab85c1e33b66d6bd5a3087b3de5ba3e86cbbe80"
+    },
+    "sglang": {
+      "name": "SGLang",
+      "repository": "https://github.com/sgl-project/sglang",
+      "commit": "94602c9c2b7cbdb8efd5c52802dac6a1c180089e",
+      "image": "lmsysorg/sglang:v0.5.20",
+      "version": "0.5.20"
+    }
+  },
+  "system": {
+    "devices": [
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200",
+      "NVIDIA H200"
+    ],
+    "device_count": 16,
+    "python": "3.12.3",
+    "platform": "Linux-5.15.0-153-generic-x86_64-with-glibc2.39",
+    "torch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "nccl": "2.29.7",
+    "packages": {
+      "sglang": "0.5.20",
+      "torch": "2.13.0+cu130",
+      "triton": "3.7.1",
+      "transformers": "5.12.1"
+    },
+    "nodes": 2
+  },
+  "server_launch": {
+    "1": {
+      "argv": [
+        "python3",
+        "-m",
+        "sglang.launch_server",
+        "--model-path",
+        "/mnt/weka/shrd/k2m/micah.villmow/models/375b-moe-bf16-0424226dcc41dba7ff98dab5fbd372d0759feddb",
+        "--served-model-name",
+        "375b-moe-bf16-sglang-g16-graphs1",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "23708",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--context-length",
+        "524288",
+        "--tp-size",
+        "16",
+        "--max-running-requests",
+        "1",
+        "--disable-radix-cache",
+        "--enable-metrics",
+        "--nnodes",
+        "2"
+      ],
+      "nodes": [
+        {
+          "node_rank": 0,
+          "argv": [
+            "python3",
+            "-m",
+            "sglang.launch_server",
+            "--model-path",
+            "/mnt/weka/shrd/k2m/micah.villmow/models/375b-moe-bf16-0424226dcc41dba7ff98dab5fbd372d0759feddb",
+            "--served-model-name",
+            "375b-moe-bf16-sglang-g16-graphs1",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "23708",
+            "--dtype",
+            "bfloat16",
+            "--trust-remote-code",
+            "--context-length",
+            "524288",
+            "--tp-size",
+            "16",
+            "--max-running-requests",
+            "1",
+            "--disable-radix-cache",
+            "--enable-metrics",
+            "--nnodes",
+            "2",
+            "--dist-init-addr",
+            "fs-mbz-gpu-557:35708",
+            "--node-rank",
+            "0"
+          ]
+        },
+        {
+          "node_rank": 1,
+          "argv": [
+            "python3",
+            "-m",
+            "sglang.launch_server",
+            "--model-path",
+            "/mnt/weka/shrd/k2m/micah.villmow/models/375b-moe-bf16-0424226dcc41dba7ff98dab5fbd372d0759feddb",
+            "--served-model-name",
+            "375b-moe-bf16-sglang-g16-graphs1",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "23708",
+            "--dtype",
+            "bfloat16",
+            "--trust-remote-code",
+            "--context-length",
+            "524288",
+            "--tp-size",
+            "16",
+            "--max-running-requests",
+            "1",
+            "--disable-radix-cache",
+            "--enable-metrics",
+            "--nnodes",
+            "2",
+            "--dist-init-addr",
+            "fs-mbz-gpu-557:35708",
+            "--node-rank",
+            "1"
+          ]
+        }
+      ],
+      "shell": "run concurrently, one per node:\n[rank 0] python3 -m sglang.launch_server --model-path /mnt/weka/shrd/k2m/micah.villmow/models/375b-moe-bf16-0424226dcc41dba7ff98dab5fbd372d0759feddb --served-model-name 375b-moe-bf16-sglang-g16-graphs1 --host 0.0.0.0 --port 23708 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 16 --max-running-requests 1 --disable-radix-cache --enable-metrics --nnodes 2 --dist-init-addr fs-mbz-gpu-557:35708 --node-rank 0\n[rank 1] python3 -m sglang.launch_server --model-path /mnt/weka/shrd/k2m/micah.villmow/models/375b-moe-bf16-0424226dcc41dba7ff98dab5fbd372d0759feddb --served-model-name 375b-moe-bf16-sglang-g16-graphs1 --host 0.0.0.0 --port 23708 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 16 --max-running-requests 1 --disable-radix-cache --enable-metrics --nnodes 2 --dist-init-addr fs-mbz-gpu-557:35708 --node-rank 1"
+    }
+  },
+  "client_request_example": {
+    "base_url": "http://fs-mbz-gpu-557:23708",
+    "model": "375b-moe-bf16-sglang-g16-graphs1",
+    "concurrency": 1,
+    "seed": 3,
+    "sequence_length": 524282,
+    "output_tokens": 1,
+    "prompts": {
+      "count": 1,
+      "tokens_per_prompt": [
+        524281
+      ],
+      "note": "exact token-id lists omitted for size; fixed token ids drawn once from the model tokenizer, identical across the three runs of a point"
+    }
+  }
+}
