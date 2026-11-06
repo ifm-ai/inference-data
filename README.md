@@ -66,6 +66,13 @@ nearest-rank (`ceil(n·f)`) ITL statistics `{count, mean, min, p50, p90,
 p95, p99, max}` in integer microseconds, aligned with the per-request
 arrays.
 
+A cell measured through the single-request capacity path keeps that path's
+leaner record instead: it carries `prompt_token_ids` and the raw SSE body
+rather than `token_ids_requested` and `streams`, and has no
+`concurrency`/`observed_running` identity fields. Its `upstream` block is
+identical to every other cell's, so the timing data is unaffected;
+`validate_dataset.py` reports the difference as `RECORD_LEAN_SHAPE`.
+
 ## Launch metadata
 
 Each cell's `environment.json` carries everything needed to reproduce its
@@ -133,6 +140,36 @@ The tree is rewritten from the campaign archive by gated tooling
 ```
 scripts/publish_run.py                   # record transform: full record + upstream.itl_us_stats
 scripts/materialize_published_tree.py    # archive -> perf/ writer
+scripts/backfill_launch_receipts.py      # add a missing launch receipt from the archive
+scripts/build_multinode_environment.py   # environment.json for a multi-node cell
 
 python3 scripts/materialize_published_tree.py --source <archive-root> --repo . [--meta-out <dir>]
 ```
+
+## Validating the dataset
+
+`scripts/validate_dataset.py` reads the shipped tree back and reports every
+inconsistency it finds. Nothing else does: the publisher only writes and
+`reproduce.py` only re-emits commands.
+
+```
+python3 scripts/validate_dataset.py [--dataset-root perf] [--json]
+                                    [--max-report 40] [--allow CODE[,CODE]]
+```
+
+It checks that every point holds exactly `run1`, `run2` and `run3` and no
+other files; that each leaf decompresses and keeps the record shape; that
+`input_lens` equals the requested ISL at the requested concurrency; that
+`itl_us_stats` describes the `itls_us` arrays present; that each point's
+`c<N>` directory is served by a launch that admits `N`; that a cell's
+`environment.json` agrees with its directory name and device totals; and that
+each model README states the totals and per-cell counts the tree actually
+holds. Repetitions of one point must agree on their output length.
+
+Exit status is 0 when clean, 1 when any ERROR is reported, and 2 when only
+WARNINGs are reported. Warnings cover conditions that are real but explained:
+`ITLS_SHORT` and `RUNS_DISAGREE_ITL` (some vLLM runs report fewer
+inter-token intervals than the tokens they produced), `OUTPUT_SHORTFALL`
+(a server stopped short of the requested OSL), and `RECORD_LEAN_SHAPE`
+(a cell produced through the single-request capacity path). Accept a known
+condition with `--allow <CODE>` rather than dropping the check.
