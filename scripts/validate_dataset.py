@@ -4,10 +4,11 @@
 The dataset makes promises that no existing script checked: every point holds
 exactly three independently decompressible repetitions, every record keeps the
 same shape, every point's ``c<N>`` directory is served by a server that admits
-``N`` requests, every cell's receipt matches its directory, and each model
-README states the totals the tree actually holds. ``reproduce.py`` re-emits
-launch commands and the publisher only writes; neither reads the shipped tree
-back. This tool does.
+``N`` requests, every cell's receipt matches its directory, each model README
+states the totals the tree actually holds, and a placement measured in one
+dtype covers the same point shapes in its sibling dtype. ``reproduce.py``
+re-emits launch commands and the publisher only writes; neither reads the
+shipped tree back. This tool does.
 
 Exit status is 0 when nothing is reported, 1 when any ERROR is reported, and 2
 when only WARNINGs are reported. Each finding carries a stable code so a known
@@ -31,6 +32,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 RUNS = (1, 2, 3)
+
+# A server may stop this many output tokens short of a maximum-length request.
+# Both runtimes do it consistently; a longer shortfall means the workload did
+# not complete as requested.
+SHORTFALL_TOLERANCE = 3
 
 # A record has this shape everywhere in the tree except where an older
 # publisher path was used. Both key sets are accepted only under --allow.
@@ -213,9 +219,25 @@ def check_identity(
     got = data["upstream"].get("output_lens") if isinstance(data.get("upstream"), dict) else None
     if isinstance(got, list) and got:
         osl = int(POINT_RE.match(point).group(2))
-        if got[0] != osl:
+        shortfall = osl - got[0]
+        if shortfall > SHORTFALL_TOLERANCE:
+            # The runtimes stop a couple of tokens short of a maximum-length
+            # request by design. A longer shortfall means the workload did not
+            # complete as requested.
             report.warn(
                 "OUTPUT_SHORTFALL",
+                f"{rel}: requested osl {osl}, server returned {got[0]} "
+                f"(short by {shortfall}, tolerance {SHORTFALL_TOLERANCE})",
+            )
+        elif shortfall > 0:
+            report.warn(
+                "OUTPUT_SHORTFALL_WITHIN_TOLERANCE",
+                f"{rel}: requested osl {osl}, server returned {got[0]} "
+                f"(short by {shortfall})",
+            )
+        elif shortfall < 0:
+            report.error(
+                "OUTPUT_OVER_REQUESTED",
                 f"{rel}: requested osl {osl}, server returned {got[0]}",
             )
 
@@ -367,6 +389,64 @@ def check_cell(
     return points, leaves, size
 
 
+def point_shapes(cell_dir: Path) -> set[str]:
+    """Every ``isl<I>-osl<O>/c<N>`` shape a cell holds, as one comparable set."""
+    return {
+        f"{point_dir.name}/{conc_dir.name}"
+        for point_dir in cell_dir.iterdir()
+        if point_dir.is_dir() and POINT_RE.match(point_dir.name)
+        for conc_dir in point_dir.iterdir()
+        if conc_dir.is_dir() and CONC_RE.match(conc_dir.name)
+    }
+
+
+def check_dtype_parity(
+    model_dir: Path,
+    shapes: dict[tuple[str, str], dict[str, set[str]]],
+    report: Report,
+) -> None:
+    """Compare point coverage between dtypes within one placement and runtime.
+
+    ``shapes`` maps ``(placement, runtime)`` to ``{dtype: {point/conc, ...}}``.
+    A dtype pair must cover the same point shapes: if a BF16 run exists for a
+    shape, the same shape must exist for the other dtype. Missing coverage in
+    either direction is reported separately, because "not yet measured" and
+    "measured in one dtype only" need different follow-up.
+    """
+    for (placement, runtime), by_dtype in sorted(shapes.items()):
+        if len(by_dtype) < 2:
+            dtypes = sorted(by_dtype)
+            counts = {d: len(by_dtype[d]) for d in dtypes}
+            report.error(
+                "DTYPE_PAIR_INCOMPLETE",
+                f"{model_dir.as_posix()}/{placement}/{runtime}: only "
+                f"{dtypes[0]} measured ({counts[dtypes[0]]} points); "
+                f"no matching {'fp8' if dtypes[0] == 'bf16' else 'bf16'} cell",
+            )
+            continue
+        dtypes = sorted(by_dtype)
+        for index, left in enumerate(dtypes):
+            for right in dtypes[index + 1:]:
+                left_set, right_set = by_dtype[left], by_dtype[right]
+                if left_set == right_set:
+                    continue
+                cell = f"{model_dir.as_posix()}/{placement}/{runtime}"
+                if left_set - right_set:
+                    report.error(
+                        "DTYPE_MISSING_COVERAGE",
+                        f"{cell}: {len(left_set - right_set)} point(s) measured in "
+                        f"{left} but not {right}: "
+                        + ", ".join(sorted(left_set - right_set)),
+                    )
+                if right_set - left_set:
+                    report.error(
+                        "DTYPE_MISSING_COVERAGE",
+                        f"{cell}: {len(right_set - left_set)} point(s) measured in "
+                        f"{right} but not {left}: "
+                        + ", ".join(sorted(right_set - left_set)),
+                    )
+
+
 def check_readme(
     model_dir: Path,
     points: int,
@@ -440,6 +520,9 @@ def main() -> int:
     for model_dir in model_dirs:
         model_points = model_leaves = model_size = 0
         per_cell: dict[str, tuple[int, int]] = {}
+        shapes: dict[tuple[str, str], dict[str, set[str]]] = defaultdict(
+            lambda: defaultdict(set)
+        )
         cell_dirs = sorted(
             p for p in model_dir.iterdir() if p.is_dir() and PLACEMENT_RE.match(p.name)
         )
@@ -460,7 +543,11 @@ def main() -> int:
                     model_size += size
                     key = f"{placement_dir.name}/{runtime_dir.name}/{dtype_dir.name}"
                     per_cell[key] = (points, leaves)
+                    shapes[(placement_dir.name, runtime_dir.name)][dtype_dir.name].update(
+                        point_shapes(dtype_dir)
+                    )
         check_readme(model_dir, model_points, model_leaves, model_size, per_cell, report)
+        check_dtype_parity(model_dir, shapes, report)
         total_points += model_points
         total_leaves += model_leaves
         total_size += model_size

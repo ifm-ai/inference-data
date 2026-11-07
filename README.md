@@ -162,9 +162,22 @@ other files; that each leaf decompresses and keeps the record shape; that
 `input_lens` equals the requested ISL at the requested concurrency; that
 `itl_us_stats` describes the `itls_us` arrays present; that each point's
 `c<N>` directory is served by a launch that admits `N`; that a cell's
-`environment.json` agrees with its directory name and device totals; and that
+`environment.json` agrees with its directory name and device totals; that
 each model README states the totals and per-cell counts the tree actually
-holds. Repetitions of one point must agree on their output length.
+holds; and that a placement measured in one dtype covers the same point
+shapes in its sibling dtype. Repetitions of one point must agree on their
+output length.
+
+A server may return up to `SHORTFALL_TOLERANCE` (3) fewer output tokens than
+requested; both runtimes do this on maximum-length decodes. A shortfall within
+that tolerance is `OUTPUT_SHORTFALL_WITHIN_TOLERANCE`, a longer one is
+`OUTPUT_SHORTFALL`, and more tokens than requested is
+`OUTPUT_OVER_REQUESTED`.
+
+Dtype coverage is compared per placement and runtime. A cell measured in one
+dtype only is `DTYPE_PAIR_INCOMPLETE`; a point shape present in one dtype and
+absent in the other is `DTYPE_MISSING_COVERAGE`, which names each missing
+shape so it can be queued.
 
 Exit status is 0 when clean, 1 when any ERROR is reported, and 2 when only
 WARNINGs are reported. Warnings cover conditions that are real but explained:
