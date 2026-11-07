@@ -38,6 +38,12 @@ RUNS = (1, 2, 3)
 # not complete as requested.
 SHORTFALL_TOLERANCE = 3
 
+# Repetitions of one point may differ in output length by this much and still
+# be accepted. A server that stops a token or two short can land on either
+# side across runs; that is the same condition as a tolerated shortfall, not a
+# defect. A larger disagreement means the runs measured different work.
+REPETITION_TOLERANCE = 1
+
 # A record has this shape everywhere in the tree except where an older
 # publisher path was used. Both key sets are accepted only under --allow.
 STD_RECORD_KEYS = frozenset(
@@ -382,10 +388,20 @@ def check_cell(
                 )
             outcomes = {v for v in per_run_out.values() if v is not None}
             if len(outcomes) > 1:
-                report.error(
-                    "RUNS_DISAGREE_OUTPUT",
-                    f"{rel_point}: output_lens differ between runs {sorted(outcomes)}",
-                )
+                lengths = {v[0] for v in outcomes if v}
+                spread = max(lengths) - min(lengths) if lengths else 0
+                if spread <= REPETITION_TOLERANCE:
+                    report.warn(
+                        "RUNS_DIFFER_WITHIN_TOLERANCE",
+                        f"{rel_point}: output_lens {sorted(outcomes)} differ by "
+                        f"{spread} (tolerance {REPETITION_TOLERANCE})",
+                    )
+                else:
+                    report.error(
+                        "RUNS_DISAGREE_OUTPUT",
+                        f"{rel_point}: output_lens differ between runs "
+                        f"{sorted(outcomes)} by {spread}",
+                    )
     return points, leaves, size
 
 

@@ -166,7 +166,8 @@ other files; that each leaf decompresses and keeps the record shape; that
 each model README states the totals and per-cell counts the tree actually
 holds; and that a placement measured in one dtype covers the same point
 shapes in its sibling dtype. Repetitions of one point must agree on their
-output length.
+output length to within `REPETITION_TOLERANCE` (1) token; a wider spread is
+`RUNS_DISAGREE_OUTPUT`.
 
 A server may return up to `SHORTFALL_TOLERANCE` (3) fewer output tokens than
 requested; both runtimes do this on maximum-length decodes. A shortfall within
