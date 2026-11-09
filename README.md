@@ -168,15 +168,12 @@ The grid is measured at **osl 32**. Only a prefix of the response is needed to
 resolve prefill behaviour across input length, and a short output keeps a
 full sweep inside a sane run time.
 
-The initial campaign measured the same sweep at **osl 1024**. Those points
-stay in the tree and are not reported as missing grid coverage
-(`LEGACY_SWEEP_OSL`). That output length was long enough for a response to
-reach a steady decode rate, so each sweep point doubled as a short
-decode-throughput sample on top of its prefill measurement. No written
-rationale for choosing 1024 exists in the campaign ledger; it is recorded
-here as the observed purpose, not as a claim about why that number was set.
-Points whose ISL falls outside the grid at either output length are reported
-as `GRID_UNEXPECTED_POINT`.
+The initial campaign measured the same sweep at **osl 1024**, long enough for
+a response to reach a steady decode rate, so each sweep point also served as a
+short decode-throughput sample. Those points stay in the tree and are not
+reported as missing grid coverage (`LEGACY_SWEEP_OSL`). Points whose ISL falls
+outside the grid at either output length are reported as
+`GRID_UNEXPECTED_POINT`.
 
 ## Validating the dataset
 
