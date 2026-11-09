@@ -484,8 +484,10 @@ def required_isl_points(context: int | None, osl: int = OUTPUT_STEP) -> set[int]
     return base
 
 
-# The sweep was measured at osl 1024 through the initial campaign. Those points
-# stay in the tree; the grid is checked at OUTPUT_STEP only.
+# The initial campaign measured the sweep at osl 1024 to establish that
+# runtimes and configurations align point for point. That is established, so
+# later runs use OUTPUT_STEP (32) to cut compute. The osl 1024 points stay in
+# the tree; the grid itself is checked at OUTPUT_STEP only.
 LEGACY_SWEEP_OSL = 1024
 
 

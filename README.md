@@ -164,16 +164,15 @@ full sweep at `c2` as well, so coverage is counted per concurrency.
 
 ### Output length
 
-The grid is measured at **osl 32**. Only a prefix of the response is needed to
-resolve prefill behaviour across input length, and a short output keeps a
-full sweep inside a sane run time.
+The grid is measured at **osl 32**. The initial campaign measured the same
+sweep at **osl 1024** to establish that runtimes and configurations align
+point for point. That alignment is now established, so later runs use osl 32:
+a prefix of the response still resolves prefill behaviour across input length,
+at a fraction of the compute.
 
-The initial campaign measured the same sweep at **osl 1024**, long enough for
-a response to reach a steady decode rate, so each sweep point also served as a
-short decode-throughput sample. Those points stay in the tree and are not
-reported as missing grid coverage (`LEGACY_SWEEP_OSL`). Points whose ISL falls
-outside the grid at either output length are reported as
-`GRID_UNEXPECTED_POINT`.
+The osl 1024 points stay in the tree and are not reported as missing grid
+coverage (`LEGACY_SWEEP_OSL`). Points whose ISL falls outside the grid at
+either output length are reported as `GRID_UNEXPECTED_POINT`.
 
 ## Validating the dataset
 
