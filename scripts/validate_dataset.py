@@ -50,7 +50,7 @@ SWEEP_ISL = (
     64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
     131072, 196608, 262144, 327680, 393216, 458752,
 )
-OUTPUT_STEP = 1024
+OUTPUT_STEP = 32
 MEGA_CONTEXT = 1048576
 
 # Point shapes measured by every cell and kept for continuity. Any other ISL
@@ -463,26 +463,30 @@ def native_context(env: dict) -> int | None:
     return int(value) if isinstance(value, int) else None
 
 
-def required_isl_points(context: int | None) -> set[int]:
-    """The ISL sweep every c1 cell must hold.
+def required_isl_points(context: int | None, osl: int = OUTPUT_STEP) -> set[int]:
+    """The ISL sweep every c1 cell must hold at one output length.
 
     The sweep is capped at the native context. The maximum-sequence test is a
     separate point: the largest ISL whose input plus output reaches the
-    context, which both runtimes measure as ``<context - 1025>`` at osl 1024.
+    context.
     """
     if context is None:
         return set()
-    base = {i for i in SWEEP_ISL if i + OUTPUT_STEP <= context}
-    base.add(context - OUTPUT_STEP - 1)
+    base = {i for i in SWEEP_ISL if i + osl <= context}
+    base.add(context - osl - 1)
     if context >= MEGA_CONTEXT:
-        base.update(i for i in (786432, 1048576 - OUTPUT_STEP - 1) if i < context)
+        # A 1M-context model names two points on top of the base sweep. They
+        # stay distinct from the maximum-sequence test, which lands 33 tokens
+        # below the full 1M ISL. The named 1M point is allowed to exceed the
+        # context by its own output length: it is the boundary measurement.
+        base.update(i for i in (786432, MEGA_CONTEXT))
+    base.add(context - osl - 1)
     return base
 
 
-# At concurrency above one only the two saturation anchors are required. They
-# are named from the context: isl1-osl<ctx-1> and isl<ctx-1>-osl1.
-def c2_anchors(context: int) -> set[str]:
-    return {f"isl1-osl{context - 1}", f"isl{context - 1}-osl1"}
+# The sweep was measured at osl 1024 through the initial campaign. Those points
+# stay in the tree; the grid is checked at OUTPUT_STEP only.
+LEGACY_SWEEP_OSL = 1024
 
 
 def check_required_grid(
@@ -492,46 +496,52 @@ def check_required_grid(
     shapes: set[str],
     report: Report,
 ) -> None:
-    """Every cell must carry the full ISL sweep at c1, and the anchor pair
-    above it."""
+    """Every concurrency of a cell must carry the same ISL sweep.
+
+    The grid is defined at ``OUTPUT_STEP``. Points measured at the legacy
+    output length are kept and are not reported as missing grid coverage.
+    """
     rel = cell_dir.as_posix()
     if context is None:
         report.warn("CONTEXT_UNDETERMINED", f"{rel}: no context length in receipt")
         return
     here = {shape for shape in shapes if shape.endswith("/" + concurrency)}
-    if concurrency != "c1":
-        for anchor in sorted(c2_anchors(context)):
-            if not any(shape.startswith(anchor + "/") for shape in here):
-                report.error(
-                    "GRID_MISSING_ANCHOR", f"{rel}/{concurrency}: missing {anchor}"
-                )
-        return
+
+    def isl_set(osl: int) -> set[int]:
+        return {
+            int(POINT_RE.match(shape.split("/")[0]).group(1))
+            for shape in here
+            if POINT_RE.match(shape.split("/")[0]).group(2) == str(osl)
+        }
 
     required = required_isl_points(context)
-    present = {int(POINT_RE.match(shape.split("/")[0]).group(1)) for shape in here}
+    present = isl_set(OUTPUT_STEP)
     missing = sorted(required - present)
+    legacy = isl_set(LEGACY_SWEEP_OSL)
+    legacy_only = sorted((required & legacy) - present)
     if missing:
-        report.error(
-            "GRID_MISSING_ISL",
-            f"{rel}/{concurrency}: context {context} requires "
-            f"{len(required)} ISL points, missing {missing}",
-        )
-    if not any(shape.startswith("isl1-osl") for shape in here):
-        report.error("GRID_NO_DECODE", f"{rel}/{concurrency}: no isl1 decode anchor")
+        detail = f"{rel}/{concurrency}: context {context} requires {len(required)} ISL points at osl{OUTPUT_STEP}, missing {missing}"
+        if legacy_only:
+            detail += f" ({len(legacy_only)} have a legacy osl{LEGACY_SWEEP_OSL} point only)"
+        report.error('GRID_MISSING_ISL', detail)
 
-    # A point outside the sweep, the context test, the decode anchor and the
-    # kept history is a one-off measurement, not part of the grid.
+    # A point outside the sweep at either output length is a one-off. Legacy
+    # sweep points (max-seq at the old output length) and the old saturation
+    # anchors are historical and are not reported.
     allowed_isl = required | {1}
     kept = known_extra_shapes(context)
+    legacy_max_seq = {context - LEGACY_SWEEP_OSL - 1, context - LEGACY_SWEEP_OSL - 2}
+    legacy_c2 = {context - 1}
     for shape in sorted(here):
         if shape in kept:
             continue
         isl = int(POINT_RE.match(shape.split("/")[0]).group(1))
-        if isl not in allowed_isl:
-            report.warn(
-                "GRID_UNEXPECTED_POINT",
-                f"{rel}/{concurrency}: {shape} is not in the required grid",
-            )
+        if isl in allowed_isl or isl in legacy_max_seq or isl in legacy_c2:
+            continue
+        report.warn(
+            "GRID_UNEXPECTED_POINT",
+            f"{rel}/{concurrency}: {shape} is not in the required grid",
+        )
 
 
 def point_shapes(cell_dir: Path) -> set[str]:

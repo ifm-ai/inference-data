@@ -148,8 +148,8 @@ python3 scripts/materialize_published_tree.py --source <archive-root> --repo . [
 
 ## Required point grid
 
-Every cell must hold the same ISL sweep at concurrency 1. The sweep is capped
-at the server's native context, and the maximum-sequence test is the largest
+Every concurrency of a cell holds the same ISL sweep. The sweep is capped at
+the server's native context, and the maximum-sequence test is the largest
 input whose input plus output reaches that context:
 
 ```
@@ -158,14 +158,25 @@ input whose input plus output reaches that context:
 ```
 
 That is **18 ISL points for a 512K-context model, 14 for 256K and 12 for
-128K**; a 1M-context model adds 768K and 1M for 19. Each cell also carries one
-`isl1` decode anchor, and a cell above concurrency 1 carries the two
-saturation anchors named from its context. So a cell holds at most 19 c1
-points and 2 anchor points per higher concurrency.
+128K**. A 1M-context model adds 768K and 1M on top of the sweep, for **20**.
+Each cell also carries one `isl1` decode anchor. A cell with `c2` carries the
+full sweep at `c2` as well, so coverage is counted per concurrency.
 
-Points that a cell measured before this rule and that remain useful
-(`isl1000`, `isl10000`, `isl100000` decode anchors) are kept. Anything else is
-reported as `GRID_UNEXPECTED_POINT` and is not part of the grid.
+### Output length
+
+The grid is measured at **osl 32**. Only a prefix of the response is needed to
+resolve prefill behaviour across input length, and a short output keeps a
+full sweep inside a sane run time.
+
+The initial campaign measured the same sweep at **osl 1024**. Those points
+stay in the tree and are not reported as missing grid coverage
+(`LEGACY_SWEEP_OSL`). That output length was long enough for a response to
+reach a steady decode rate, so each sweep point doubled as a short
+decode-throughput sample on top of its prefill measurement. No written
+rationale for choosing 1024 exists in the campaign ledger; it is recorded
+here as the observed purpose, not as a claim about why that number was set.
+Points whose ISL falls outside the grid at either output length are reported
+as `GRID_UNEXPECTED_POINT`.
 
 ## Validating the dataset
 
