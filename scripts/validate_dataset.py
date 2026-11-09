@@ -44,6 +44,26 @@ SHORTFALL_TOLERANCE = 3
 # defect. A larger disagreement means the runs measured different work.
 REPETITION_TOLERANCE = 1
 
+# The ISL sweep every cell must hold at each concurrency. The context length
+# caps it; the native context is also measured as the maximum-sequence test.
+SWEEP_ISL = (
+    64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+    131072, 196608, 262144, 327680, 393216, 458752,
+)
+OUTPUT_STEP = 1024
+MEGA_CONTEXT = 1048576
+
+# Point shapes measured by every cell and kept for continuity. Any other ISL
+# is a one-off measurement, not part of the grid. The decode-anchor ISLs scale
+# with context, so they are generated rather than listed.
+DECODE_ANCHOR_ISL = (1000, 10000, 100000)
+
+
+def known_extra_shapes(context: int) -> set[str]:
+    return {
+        f"isl{isl}-osl{context - isl}/c1" for isl in DECODE_ANCHOR_ISL
+    }
+
 # A record has this shape everywhere in the tree except where an older
 # publisher path was used. Both key sets are accepted only under --allow.
 STD_RECORD_KEYS = frozenset(
@@ -405,6 +425,115 @@ def check_cell(
     return points, leaves, size
 
 
+def read_cell_env(cell_dir: Path) -> dict | None:
+    path = cell_dir / "environment.json"
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def cell_concurrencies(cell_dir: Path) -> list[str]:
+    return sorted(
+        {
+            conc_dir.name
+            for point_dir in cell_dir.iterdir()
+            if point_dir.is_dir() and POINT_RE.match(point_dir.name)
+            for conc_dir in point_dir.iterdir()
+            if conc_dir.is_dir() and CONC_RE.match(conc_dir.name)
+        }
+    )
+
+
+def native_context(env: dict) -> int | None:
+    """The server's own maximum sequence length, from its launch argv."""
+    launches = env.get("server_launch") or {}
+    for entry in launches.values():
+        argv = entry.get("argv") or []
+        for flag in ("--context-length", "--max-model-len"):
+            if flag in argv:
+                index = argv.index(flag) + 1
+                if index < len(argv):
+                    try:
+                        return int(argv[index])
+                    except (TypeError, ValueError):
+                        continue
+    system = env.get("system") or {}
+    value = system.get("context_length") or system.get("max_sequence_length")
+    return int(value) if isinstance(value, int) else None
+
+
+def required_isl_points(context: int | None) -> set[int]:
+    """The ISL sweep every c1 cell must hold.
+
+    The sweep is capped at the native context. The maximum-sequence test is a
+    separate point: the largest ISL whose input plus output reaches the
+    context, which both runtimes measure as ``<context - 1025>`` at osl 1024.
+    """
+    if context is None:
+        return set()
+    base = {i for i in SWEEP_ISL if i + OUTPUT_STEP <= context}
+    base.add(context - OUTPUT_STEP - 1)
+    if context >= MEGA_CONTEXT:
+        base.update(i for i in (786432, 1048576 - OUTPUT_STEP - 1) if i < context)
+    return base
+
+
+# At concurrency above one only the two saturation anchors are required. They
+# are named from the context: isl1-osl<ctx-1> and isl<ctx-1>-osl1.
+def c2_anchors(context: int) -> set[str]:
+    return {f"isl1-osl{context - 1}", f"isl{context - 1}-osl1"}
+
+
+def check_required_grid(
+    cell_dir: Path,
+    context: int | None,
+    concurrency: str,
+    shapes: set[str],
+    report: Report,
+) -> None:
+    """Every cell must carry the full ISL sweep at c1, and the anchor pair
+    above it."""
+    rel = cell_dir.as_posix()
+    if context is None:
+        report.warn("CONTEXT_UNDETERMINED", f"{rel}: no context length in receipt")
+        return
+    here = {shape for shape in shapes if shape.endswith("/" + concurrency)}
+    if concurrency != "c1":
+        for anchor in sorted(c2_anchors(context)):
+            if not any(shape.startswith(anchor + "/") for shape in here):
+                report.error(
+                    "GRID_MISSING_ANCHOR", f"{rel}/{concurrency}: missing {anchor}"
+                )
+        return
+
+    required = required_isl_points(context)
+    present = {int(POINT_RE.match(shape.split("/")[0]).group(1)) for shape in here}
+    missing = sorted(required - present)
+    if missing:
+        report.error(
+            "GRID_MISSING_ISL",
+            f"{rel}/{concurrency}: context {context} requires "
+            f"{len(required)} ISL points, missing {missing}",
+        )
+    if not any(shape.startswith("isl1-osl") for shape in here):
+        report.error("GRID_NO_DECODE", f"{rel}/{concurrency}: no isl1 decode anchor")
+
+    # A point outside the sweep, the context test, the decode anchor and the
+    # kept history is a one-off measurement, not part of the grid.
+    allowed_isl = required | {1}
+    kept = known_extra_shapes(context)
+    for shape in sorted(here):
+        if shape in kept:
+            continue
+        isl = int(POINT_RE.match(shape.split("/")[0]).group(1))
+        if isl not in allowed_isl:
+            report.warn(
+                "GRID_UNEXPECTED_POINT",
+                f"{rel}/{concurrency}: {shape} is not in the required grid",
+            )
+
+
 def point_shapes(cell_dir: Path) -> set[str]:
     """Every ``isl<I>-osl<O>/c<N>`` shape a cell holds, as one comparable set."""
     return {
@@ -562,6 +691,13 @@ def main() -> int:
                     shapes[(placement_dir.name, runtime_dir.name)][dtype_dir.name].update(
                         point_shapes(dtype_dir)
                     )
+                    cell_env = read_cell_env(dtype_dir)
+                    context = native_context(cell_env) if cell_env else None
+                    cell_shapes = point_shapes(dtype_dir)
+                    for concurrency in cell_concurrencies(dtype_dir):
+                        check_required_grid(
+                            dtype_dir, context, concurrency, cell_shapes, report
+                        )
         check_readme(model_dir, model_points, model_leaves, model_size, per_cell, report)
         check_dtype_parity(model_dir, shapes, report)
         total_points += model_points

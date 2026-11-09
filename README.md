@@ -146,6 +146,27 @@ scripts/build_multinode_environment.py   # environment.json for a multi-node cel
 python3 scripts/materialize_published_tree.py --source <archive-root> --repo . [--meta-out <dir>]
 ```
 
+## Required point grid
+
+Every cell must hold the same ISL sweep at concurrency 1. The sweep is capped
+at the server's native context, and the maximum-sequence test is the largest
+input whose input plus output reaches that context:
+
+```
+64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+131072, 196608, 262144, 327680, 393216, 458752   (+ the context test)
+```
+
+That is **18 ISL points for a 512K-context model, 14 for 256K and 12 for
+128K**; a 1M-context model adds 768K and 1M for 19. Each cell also carries one
+`isl1` decode anchor, and a cell above concurrency 1 carries the two
+saturation anchors named from its context. So a cell holds at most 19 c1
+points and 2 anchor points per higher concurrency.
+
+Points that a cell measured before this rule and that remain useful
+(`isl1000`, `isl10000`, `isl100000` decode anchors) are kept. Anything else is
+reported as `GRID_UNEXPECTED_POINT` and is not part of the grid.
+
 ## Validating the dataset
 
 `scripts/validate_dataset.py` reads the shipped tree back and reports every
