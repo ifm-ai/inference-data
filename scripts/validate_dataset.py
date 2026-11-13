@@ -601,6 +601,13 @@ def check_dtype_parity(
     shape, the same shape must exist for the other dtype. Missing coverage in
     either direction is reported separately, because "not yet measured" and
     "measured in one dtype only" need different follow-up.
+
+    Coverage is judged against each cell's own demonstrated KV ceiling (the
+    largest total any of its points completed). A shape above a dtype's
+    ceiling is physically inadmissible there — the dtypes have different
+    weight footprints, so their pools differ (32b fp8 1x1 admitted 368354
+    KV tokens where bf16 1x1 rejected input above 245540) — and does not
+    count as missing coverage in that dtype.
     """
     for (placement, runtime), by_dtype in sorted(shapes.items()):
         if len(by_dtype) < 2:
@@ -613,26 +620,40 @@ def check_dtype_parity(
                 f"no matching {'fp8' if dtypes[0] == 'bf16' else 'bf16'} cell",
             )
             continue
+
+        def ceiling(shape: str, dtype: str) -> int:
+            isl, osl = (int(v) for v in
+                        re.fullmatch(r"isl(\d+)-osl(\d+)", shape.split("/")[0]).groups())
+            return isl + osl
+
+        def visible(shape: str, dtype: str) -> bool:
+            """Shape counts as coverage-required for this dtype's cell."""
+            cell_shapes = by_dtype[dtype]
+            totals = [ceiling(s, dtype) for s in cell_shapes]
+            return ceiling(shape, dtype) <= max(totals, default=0)
+
         dtypes = sorted(by_dtype)
         for index, left in enumerate(dtypes):
             for right in dtypes[index + 1:]:
                 left_set, right_set = by_dtype[left], by_dtype[right]
-                if left_set == right_set:
+                left_need = {s for s in left_set if visible(s, right)}
+                right_need = {s for s in right_set if visible(s, left)}
+                if left_need == right_need:
                     continue
                 cell = f"{model_dir.as_posix()}/{placement}/{runtime}"
-                if left_set - right_set:
+                if left_need - right_need:
                     report.error(
                         "DTYPE_MISSING_COVERAGE",
-                        f"{cell}: {len(left_set - right_set)} point(s) measured in "
+                        f"{cell}: {len(left_need - right_need)} point(s) measured in "
                         f"{left} but not {right}: "
-                        + ", ".join(sorted(left_set - right_set)),
+                        + ", ".join(sorted(left_need - right_need)),
                     )
-                if right_set - left_set:
+                if right_need - left_need:
                     report.error(
                         "DTYPE_MISSING_COVERAGE",
-                        f"{cell}: {len(right_set - left_set)} point(s) measured in "
+                        f"{cell}: {len(right_need - left_need)} point(s) measured in "
                         f"{right} but not {left}: "
-                        + ", ".join(sorted(right_set - left_set)),
+                        + ", ".join(sorted(right_need - left_need)),
                     )
 
 
