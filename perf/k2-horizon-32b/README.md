@@ -7,21 +7,21 @@ checkpoint.
 
 ## Cells in this dataset
 
-**299 points / 897 leaves / 175.2 MB.**
+**634 points / 1902 leaves / 178.7 MB.**
 
 | cell (placement/runtime/dtype) | points | leaves |
 |---|---:|---:|
-| `1x1/sglang/bf16` | 13 | 39 |
-| `1x1/sglang/fp8` | 15 | 45 |
-| `1x2/sglang/bf16` | 22 | 66 |
-| `1x2/sglang/fp8` | 22 | 66 |
-| `1x2/vllm/bf16` | 22 | 66 |
-| `1x2/vllm/fp8` | 22 | 66 |
-| `1x4/sglang/bf16` | 22 | 66 |
-| `1x4/sglang/fp8` | 22 | 66 |
-| `1x4/vllm/bf16` | 24 | 72 |
-| `1x4/vllm/fp8` | 24 | 72 |
-| `1x8/sglang/bf16` | 22 | 66 |
-| `1x8/sglang/fp8` | 22 | 66 |
-| `1x8/vllm/bf16` | 24 | 72 |
-| `1x8/vllm/fp8` | 23 | 69 |
+| `1x1/sglang/bf16` | 27 | 81 |
+| `1x1/sglang/fp8` | 31 | 93 |
+| `1x2/sglang/bf16` | 41 | 123 |
+| `1x2/sglang/fp8` | 41 | 123 |
+| `1x2/vllm/bf16` | 41 | 123 |
+| `1x2/vllm/fp8` | 41 | 123 |
+| `1x4/sglang/bf16` | 41 | 123 |
+| `1x4/sglang/fp8` | 41 | 123 |
+| `1x4/vllm/bf16` | 62 | 186 |
+| `1x4/vllm/fp8` | 62 | 186 |
+| `1x8/sglang/bf16` | 41 | 123 |
+| `1x8/sglang/fp8` | 41 | 123 |
+| `1x8/vllm/bf16` | 62 | 186 |
+| `1x8/vllm/fp8` | 62 | 186 |
