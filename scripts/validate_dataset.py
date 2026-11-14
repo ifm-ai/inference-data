@@ -589,6 +589,42 @@ def point_shapes(cell_dir: Path) -> set[str]:
     }
 
 
+# Cells whose dtype sibling structurally cannot exist. Keyed by
+# (model, placement, runtime); the value is the dtype the cell is measured
+# in plus the reason class. check_dtype_parity reports such single-dtype
+# cells as DTYPE_PAIR_STRUCTURAL (WARNING) instead of DTYPE_PAIR_INCOMPLETE
+# (ERROR). The waiver only fires while the sibling is absent: if a sibling
+# cell ever appears, ordinary parity checks apply to it. Provenance for
+# every entry is in REFRESH-POLICY.md and the PR #61 dtype-scope comment
+# (github.com/ifm-ai/inference-data/pull/61#issuecomment-6881338161).
+#
+# Reason classes:
+#   no-fp8-checkpoint    no fp8 checkpoint of the model has been published
+#                        (verified against storage; nothing to benchmark)
+#   bf16-hbm-infeasible  bf16 weights exceed the placement's HBM capacity
+#                        (375b bf16 is ~750 GB vs 4 x 141 GB = 564 GB)
+#   sglang-ct-only       sglang's xLLM/K2-Horizon loader accepts only
+#                        compressed-tensors weights and the model's fp8
+#                        checkpoint is native fp8; vllm serves it normally
+STRUCTURAL_DTYPE_CELLS: dict[tuple[str, str, str], tuple[str, str]] = {
+    # 900m / 3.7b: no fp8 checkpoint exists for either model family.
+    **{
+        (model, placement, runtime): ("bf16", "no-fp8-checkpoint")
+        for model in ("k2-horizon-900m", "k2-horizon-3.7b")
+        for placement in ("1x1", "1x2", "1x4", "1x8")
+        for runtime in ("sglang", "vllm")
+    },
+    # 375b bf16 at 4 GPUs cannot fit in HBM; the fp8 cell is the measurable one.
+    ("k2-horizon-375b-a23b", "1x4", "sglang"): ("fp8", "bf16-hbm-infeasible"),
+    ("k2-horizon-375b-a23b", "1x4", "vllm"): ("fp8", "bf16-hbm-infeasible"),
+    # MoVA fp8 is native fp8; sglang's loader refuses it before loading a weight.
+    ("k2-horizon-MoVA-36b-a4b", "1x1", "sglang"): ("bf16", "sglang-ct-only"),
+    ("k2-horizon-MoVA-36b-a4b", "1x2", "sglang"): ("bf16", "sglang-ct-only"),
+    ("k2-horizon-MoVA-36b-a4b", "1x4", "sglang"): ("bf16", "sglang-ct-only"),
+    ("k2-horizon-MoVA-36b-a4b", "1x8", "sglang"): ("bf16", "sglang-ct-only"),
+}
+
+
 def check_dtype_parity(
     model_dir: Path,
     shapes: dict[tuple[str, str], dict[str, set[str]]],
@@ -613,6 +649,18 @@ def check_dtype_parity(
         if len(by_dtype) < 2:
             dtypes = sorted(by_dtype)
             counts = {d: len(by_dtype[d]) for d in dtypes}
+            waiver = STRUCTURAL_DTYPE_CELLS.get(
+                (model_dir.name, placement, runtime)
+            )
+            if waiver is not None and dtypes[0] == waiver[0]:
+                report.warn(
+                    "DTYPE_PAIR_STRUCTURAL",
+                    f"{model_dir.as_posix()}/{placement}/{runtime}: only "
+                    f"{dtypes[0]} measured ({counts[dtypes[0]]} points); "
+                    f"sibling dtype structurally unbuildable "
+                    f"({waiver[1]})",
+                )
+                continue
             report.error(
                 "DTYPE_PAIR_INCOMPLETE",
                 f"{model_dir.as_posix()}/{placement}/{runtime}: only "

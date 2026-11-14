@@ -221,7 +221,12 @@ that tolerance is `OUTPUT_SHORTFALL_WITHIN_TOLERANCE`, a longer one is
 Dtype coverage is compared per placement and runtime. A cell measured in one
 dtype only is `DTYPE_PAIR_INCOMPLETE`; a point shape present in one dtype and
 absent in the other is `DTYPE_MISSING_COVERAGE`, which names each missing
-shape so it can be queued.
+shape so it can be queued. Cells whose sibling dtype structurally cannot
+exist — no fp8 checkpoint was published, bf16 weights exceed the placement's
+HBM, or sglang's loader rejects the checkpoint's quantization format — are
+waived as `DTYPE_PAIR_STRUCTURAL` (WARNING) instead; the waived cells and
+their reasons are listed in `STRUCTURAL_DTYPE_CELLS` in the validator, with
+full provenance in REFRESH-POLICY.md.
 
 Exit status is 0 when clean, 1 when any ERROR is reported, and 2 when only
 WARNINGs are reported. Warnings cover conditions that are real but explained:
