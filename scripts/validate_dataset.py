@@ -52,6 +52,10 @@ SWEEP_ISL = (
 )
 OUTPUT_STEP = 32
 MEGA_CONTEXT = 1048576
+# sglang caps a request's input six tokens below the configured context
+# (max_req_input_len), so a demonstrated total within this slack of the
+# context still proves the runtime can host a full-context sequence.
+CONTEXT_SLACK = 6
 
 # Point shapes measured by every cell and kept for continuity. Any other ISL
 # is a one-off measurement, not part of the grid. The decode-anchor ISLs scale
@@ -463,24 +467,38 @@ def native_context(env: dict) -> int | None:
     return int(value) if isinstance(value, int) else None
 
 
-def required_isl_points(context: int | None, osl: int = OUTPUT_STEP) -> set[int]:
+def required_isl_points(
+    context: int | None, osl: int = OUTPUT_STEP, admitted: int | None = None
+) -> set[int]:
     """The ISL sweep every c1 cell must hold at one output length.
 
     The sweep is capped at the native context. The maximum-sequence test is a
     separate point: the largest ISL whose input plus output reaches the
     context.
+
+    ``admitted`` is the largest total sequence length (input + output) the
+    cell has demonstrably completed, over every output length and
+    concurrency. Two ceilings hide behind that number: a KV pool smaller
+    than the context, and a runtime that reserves a few tokens below the
+    context (sglang rejects input above context - 6). Only the first caps
+    the grid, so the maximum-sequence test stays required whenever the cell
+    demonstrated a total within the runtime reserve of the full context.
+    Below that, the grid is held to the sweep the hardware admitted —
+    requesting more produced explicit server rejections (32b bf16 1x1:
+    input above 245540 rejected, 2026-11-07 campaign log).
     """
     if context is None:
         return set()
-    base = {i for i in SWEEP_ISL if i + osl <= context}
-    base.add(context - osl - 1)
-    if context >= MEGA_CONTEXT:
+    effective = context if admitted is None else min(context, admitted)
+    base = {i for i in SWEEP_ISL if i + osl <= effective}
+    if admitted is None or admitted >= context - CONTEXT_SLACK:
+        base.add(context - osl - 1)
+    if effective >= MEGA_CONTEXT:
         # A 1M-context model names two points on top of the base sweep. They
         # stay distinct from the maximum-sequence test, which lands 33 tokens
         # below the full 1M ISL. The named 1M point is allowed to exceed the
         # context by its own output length: it is the boundary measurement.
         base.update(i for i in (786432, MEGA_CONTEXT))
-    base.add(context - osl - 1)
     return base
 
 
@@ -509,14 +527,28 @@ def check_required_grid(
         return
     here = {shape for shape in shapes if shape.endswith("/" + concurrency)}
 
-    def isl_set(osl: int) -> set[int]:
-        return {
-            int(POINT_RE.match(shape.split("/")[0]).group(1))
-            for shape in here
-            if POINT_RE.match(shape.split("/")[0]).group(2) == str(osl)
-        }
+    def parse(shape: str) -> tuple[int, int]:
+        m = POINT_RE.match(shape.split("/")[0])
+        return int(m.group(1)), int(m.group(2))
 
-    required = required_isl_points(context)
+    def isl_set(osl: int) -> set[int]:
+        return {parse(shape)[0] for shape in here if parse(shape)[1] == osl}
+
+    # The KV pool is shared by every concurrency and output length of the
+    # cell, so the demonstrated ceiling is the largest total any published
+    # point completed. Points above it are physically infeasible, not
+    # missing data; the campaign keeps demonstrating new ceilings and the
+    # required grid follows.
+    totals = [isl + osl for shape in shapes for isl, osl in [parse(shape)]]
+    admitted = max(totals) if totals else None
+    if admitted is not None and admitted < context:
+        report.warn(
+            "GRID_BELOW_CONTEXT",
+            f"{rel}: demonstrated ceiling {admitted} tokens is below the "
+            f"receipt context {context}; required grid capped accordingly",
+        )
+
+    required = required_isl_points(context, admitted=admitted)
     present = isl_set(OUTPUT_STEP)
     missing = sorted(required - present)
     legacy = isl_set(LEGACY_SWEEP_OSL)
@@ -569,6 +601,13 @@ def check_dtype_parity(
     shape, the same shape must exist for the other dtype. Missing coverage in
     either direction is reported separately, because "not yet measured" and
     "measured in one dtype only" need different follow-up.
+
+    Coverage is judged against each cell's own demonstrated KV ceiling (the
+    largest total any of its points completed). A shape above a dtype's
+    ceiling is physically inadmissible there — the dtypes have different
+    weight footprints, so their pools differ (32b fp8 1x1 admitted 368354
+    KV tokens where bf16 1x1 rejected input above 245540) — and does not
+    count as missing coverage in that dtype.
     """
     for (placement, runtime), by_dtype in sorted(shapes.items()):
         if len(by_dtype) < 2:
@@ -581,26 +620,40 @@ def check_dtype_parity(
                 f"no matching {'fp8' if dtypes[0] == 'bf16' else 'bf16'} cell",
             )
             continue
+
+        def ceiling(shape: str, dtype: str) -> int:
+            isl, osl = (int(v) for v in
+                        re.fullmatch(r"isl(\d+)-osl(\d+)", shape.split("/")[0]).groups())
+            return isl + osl
+
+        def visible(shape: str, dtype: str) -> bool:
+            """Shape counts as coverage-required for this dtype's cell."""
+            cell_shapes = by_dtype[dtype]
+            totals = [ceiling(s, dtype) for s in cell_shapes]
+            return ceiling(shape, dtype) <= max(totals, default=0)
+
         dtypes = sorted(by_dtype)
         for index, left in enumerate(dtypes):
             for right in dtypes[index + 1:]:
                 left_set, right_set = by_dtype[left], by_dtype[right]
-                if left_set == right_set:
+                left_need = {s for s in left_set if visible(s, right)}
+                right_need = {s for s in right_set if visible(s, left)}
+                if left_need == right_need:
                     continue
                 cell = f"{model_dir.as_posix()}/{placement}/{runtime}"
-                if left_set - right_set:
+                if left_need - right_need:
                     report.error(
                         "DTYPE_MISSING_COVERAGE",
-                        f"{cell}: {len(left_set - right_set)} point(s) measured in "
+                        f"{cell}: {len(left_need - right_need)} point(s) measured in "
                         f"{left} but not {right}: "
-                        + ", ".join(sorted(left_set - right_set)),
+                        + ", ".join(sorted(left_need - right_need)),
                     )
-                if right_set - left_set:
+                if right_need - left_need:
                     report.error(
                         "DTYPE_MISSING_COVERAGE",
-                        f"{cell}: {len(right_set - left_set)} point(s) measured in "
+                        f"{cell}: {len(right_need - left_need)} point(s) measured in "
                         f"{right} but not {left}: "
-                        + ", ".join(sorted(right_set - left_set)),
+                        + ", ".join(sorted(right_need - left_need)),
                     )
 
 
