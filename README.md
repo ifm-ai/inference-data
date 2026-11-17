@@ -162,6 +162,21 @@ That is **18 ISL points for a 512K-context model, 14 for 256K and 12 for
 Each cell also carries one `isl1` decode anchor. A cell with `c2` carries the
 full sweep at `c2` as well, so coverage is counted per concurrency.
 
+### Admission cap
+
+The grid assumes the server can host the full context. A cell whose KV pool
+cannot does not carry the points above its demonstrated ceiling — those
+inputs are rejected by the server outright, not merely unmeasured. The
+validator reads the ceiling from the data: the largest total sequence length
+(input + output) any published point of the cell completed. Points above it
+are excluded from the required grid, and the cell carries a
+`GRID_BELOW_CONTEXT` warning so the reduced grid stays visible. A runtime
+that reserves a few tokens below the context (sglang rejects input above
+context − 6) is not a KV ceiling: a demonstrated total within that reserve
+still proves the full-context sequence is hostable, so the maximum-sequence
+test stays required. The 512K-context cells currently capped this way are
+32b 1x1 bf16 (13 sweep points), 32b 1x1 fp8 and MoVA 36b 1x1 bf16 (14).
+
 ### Output length
 
 The grid is measured at **osl 32**. The initial campaign measured the same
@@ -206,7 +221,12 @@ that tolerance is `OUTPUT_SHORTFALL_WITHIN_TOLERANCE`, a longer one is
 Dtype coverage is compared per placement and runtime. A cell measured in one
 dtype only is `DTYPE_PAIR_INCOMPLETE`; a point shape present in one dtype and
 absent in the other is `DTYPE_MISSING_COVERAGE`, which names each missing
-shape so it can be queued.
+shape so it can be queued. Cells whose sibling dtype structurally cannot
+exist — no fp8 checkpoint was published, bf16 weights exceed the placement's
+HBM, or sglang's loader rejects the checkpoint's quantization format — are
+waived as `DTYPE_PAIR_STRUCTURAL` (WARNING) instead; the waived cells and
+their reasons are listed in `STRUCTURAL_DTYPE_CELLS` in the validator, with
+full provenance in REFRESH-POLICY.md.
 
 Exit status is 0 when clean, 1 when any ERROR is reported, and 2 when only
 WARNINGs are reported. Warnings cover conditions that are real but explained:

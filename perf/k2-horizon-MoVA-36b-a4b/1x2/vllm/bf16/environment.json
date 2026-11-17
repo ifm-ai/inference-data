@@ -68,6 +68,35 @@
         "--enable-expert-parallel"
       ],
       "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd --served-model-name 36b-mova-bf16-vllm-g2-tp-ep-maxc --host 127.0.0.1 --port 49783 --dtype bfloat16 --trust-remote-code --max-model-len 524288 --tensor-parallel-size 2 --max-num-seqs 1 --no-enable-prefix-caching --generation-config vllm --enable-expert-parallel"
+    },
+    "2": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "vllm.entrypoints.cli.main",
+        "serve",
+        "<models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd",
+        "--served-model-name",
+        "36b-mova-bf16-vllm-g2",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "52781",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--max-model-len",
+        "524288",
+        "--tensor-parallel-size",
+        "2",
+        "--max-num-seqs",
+        "2",
+        "--no-enable-prefix-caching",
+        "--generation-config",
+        "vllm",
+        "--enable-expert-parallel"
+      ],
+      "shell": "/usr/bin/python3 -m vllm.entrypoints.cli.main serve <models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd --served-model-name 36b-mova-bf16-vllm-g2 --host 127.0.0.1 --port 52781 --dtype bfloat16 --trust-remote-code --max-model-len 524288 --tensor-parallel-size 2 --max-num-seqs 2 --no-enable-prefix-caching --generation-config vllm --enable-expert-parallel"
     }
   },
   "client_request_example": {
