@@ -743,6 +743,16 @@ RUNTIME_STRUCTURAL_CELLS: dict[tuple[str, str, str], tuple[str, str]] = {
 # names stay as measured.
 LEGACY_MAX_SEQ_ALIAS = {"osl1023": "osl1024"}
 
+# The max-prompt anchor is runtime-specific: vllm can prefill up to
+# context-1, while sglang rejects prompts above context-6, so its published
+# anchor is isl<context-1025>-osl1023 (523263-osl1023 for 512K,
+# 130047-osl1023 for 128K). Both probe the largest hostable sequence; parity
+# compares them at the shared boundary point.
+BOUNDARY_ANCHOR_ALIAS = {
+    "isl524287-osl1": "isl523263-osl1024",
+    "isl131071-osl1": "isl130047-osl1024",
+}
+
 
 def normalize_entry(entry: str) -> str:
     """Canonicalize the documented legacy naming variants for comparison."""
@@ -750,6 +760,7 @@ def normalize_entry(entry: str) -> str:
     for old, new in LEGACY_MAX_SEQ_ALIAS.items():
         if point.endswith(old):
             point = point[: -len(old)] + new
+    point = BOUNDARY_ANCHOR_ALIAS.get(point, point)
     return f"{point}/{conc}" if conc else point
 
 

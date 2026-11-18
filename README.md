@@ -232,7 +232,11 @@ Runtime coverage is compared the same way, per placement and dtype: both
 sglang and vllm must publish the same entries for a cell, including the c2
 sweep. Entries measured in one runtime only are `RUNTIME_MISSING_COVERAGE`.
 The documented legacy max-sequence spelling (sglang `osl1023` vs vllm
-`osl1024`, same 524,286-token total) is normalized before comparison.
+`osl1024`, same 524,286-token total) is normalized before comparison, as
+is the max-prompt anchor: vllm prefills up to `context − 1` while sglang
+rejects prompts above `context − 6`, so sglang's `isl523263-osl1023` and
+vllm's `isl524287-osl1` (likewise 130047/131071 at 128K) are the same
+boundary point in each runtime's admissible spelling.
 Cells whose sibling runtime structurally cannot exist — the vllm engine
 fails at startup on one GPU for 32b/MoVA, sglang cannot load the MoVA fp8
 checkpoint, and there is no vllm two-node launcher — are waived as
