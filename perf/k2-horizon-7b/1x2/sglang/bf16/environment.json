@@ -66,6 +66,33 @@
         "--enable-metrics"
       ],
       "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/7b-bf16-30d38fecf8a609873ae73a617f5c714286e1f565 --served-model-name 7b-bf16-sglang-g2-tp-ep-maxc --host 127.0.0.1 --port 37447 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 2 --max-running-requests 1 --disable-radix-cache --enable-metrics"
+    },
+    "2": {
+      "argv": [
+        "/opt/sglang/bin/python3",
+        "-m",
+        "sglang.launch_server",
+        "--model-path",
+        "<models-root>/7b-bf16-30d38fecf8a609873ae73a617f5c714286e1f565",
+        "--served-model-name",
+        "7b-bf16-sglang-g2",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "37447",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--context-length",
+        "524288",
+        "--tp-size",
+        "2",
+        "--max-running-requests",
+        "2",
+        "--disable-radix-cache",
+        "--enable-metrics"
+      ],
+      "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/7b-bf16-30d38fecf8a609873ae73a617f5c714286e1f565 --served-model-name 7b-bf16-sglang-g2 --host 127.0.0.1 --port 37447 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 2 --max-running-requests 2 --disable-radix-cache --enable-metrics"
     }
   },
   "client_request_example": {
