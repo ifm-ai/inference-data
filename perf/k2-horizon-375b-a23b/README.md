@@ -7,14 +7,14 @@ checkpoint.
 
 ## Cells in this dataset
 
-**311 points / 933 leaves / 110.1 MB.**
+**332 points / 996 leaves / 116.5 MB.**
 
 | cell (placement/runtime/dtype) | points | leaves |
 |---|---:|---:|
 | `1x4/sglang/fp8` | 41 | 123 |
 | `1x4/vllm/fp8` | 41 | 123 |
 | `1x8/sglang/bf16` | 62 | 186 |
-| `1x8/sglang/fp8` | 41 | 123 |
+| `1x8/sglang/fp8` | 62 | 186 |
 | `1x8/vllm/bf16` | 62 | 186 |
 | `1x8/vllm/fp8` | 62 | 186 |
 | `2x8/sglang/bf16` | 21 | 63 |
