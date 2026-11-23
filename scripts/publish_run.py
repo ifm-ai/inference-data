@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Prepare one archived Chapter 8.1 run record for publication.
+"""Prepare one archived K2-Horizon run record for publication.
 
-The campaign archiver (`chapter81_archive_layout.py`, schema
-``perfhc.inference_perf_data.run.v1``) keeps ``upstream.itls_us``, one
+The campaign archiver (schema ``perfhc.inference_perf_data.run.v1``) keeps
+``upstream.itls_us``, one
 integer-microsecond inter-token-latency (ITL) array per request — the
 per-block timing data. The published form keeps every field, including
 those raw per-token timing arrays, and adds per-request ITL statistics
