@@ -705,6 +705,135 @@ def check_dtype_parity(
                     )
 
 
+# Runtimes that structurally cannot produce a cell for a (model, placement,
+# dtype). Keyed by (model, placement, dtype); the value is the runtime that
+# exists plus the reason class. check_runtime_parity reports single-runtime
+# cells as RUNTIME_STRUCTURAL (WARNING) instead of RUNTIME_MISSING_COVERAGE
+# (ERROR). Same contract as STRUCTURAL_DTYPE_CELLS: the waiver only fires
+# while the sibling runtime is absent.
+#
+# Reason classes:
+#   vllm-1gpu-startup-failure  the vllm engine fails at startup on one GPU
+#                              for this model (weights + KV for the context
+#                              do not fit), so only sglang has the cell
+#   sglang-ct-only             sglang's xLLM loader rejects the checkpoint
+#                              (native fp8, not compressed-tensors)
+#   no-vllm-multinode-launcher vllm has no two-node launcher in the campaign;
+#                              the 2x8 cell is measured with sglang only
+RUNTIME_STRUCTURAL_CELLS: dict[tuple[str, str, str], tuple[str, str]] = {
+    ("k2-horizon-32b", "1x1", "bf16"): ("sglang", "vllm-1gpu-startup-failure"),
+    ("k2-horizon-32b", "1x1", "fp8"): ("sglang", "vllm-1gpu-startup-failure"),
+    ("k2-horizon-MoVA-36b-a4b", "1x1", "bf16"): (
+        "sglang", "vllm-1gpu-startup-failure"
+    ),
+    ("k2-horizon-375b-a23b", "2x8", "bf16"): (
+        "sglang", "no-vllm-multinode-launcher"
+    ),
+    **{
+        ("k2-horizon-MoVA-36b-a4b", placement, "fp8"): (
+            "vllm", "sglang-ct-only"
+        )
+        for placement in ("1x2", "1x4", "1x8")
+    },
+}
+
+# The legacy osl1024 sweep spells its max-sequence point osl1023 on sglang
+# (the server returns 31/32 tokens) and osl1024 on vllm. Both cover the same
+# 524,286-token total, so runtime parity compares them as equal; the shipped
+# names stay as measured.
+LEGACY_MAX_SEQ_ALIAS = {"osl1023": "osl1024"}
+
+# The max-prompt anchor is runtime-specific: vllm can prefill up to
+# context-1, while sglang rejects prompts above context-6, so its published
+# anchor is isl<context-1025>-osl1023 (523263-osl1023 for 512K,
+# 130047-osl1023 for 128K). Both probe the largest hostable sequence; parity
+# compares them at the shared boundary point.
+BOUNDARY_ANCHOR_ALIAS = {
+    "isl524287-osl1": "isl523263-osl1024",
+    "isl131071-osl1": "isl130047-osl1024",
+}
+
+
+def normalize_entry(entry: str) -> str:
+    """Canonicalize the documented legacy naming variants for comparison."""
+    point, _, conc = entry.partition("/")
+    for old, new in LEGACY_MAX_SEQ_ALIAS.items():
+        if point.endswith(old):
+            point = point[: -len(old)] + new
+    point = BOUNDARY_ANCHOR_ALIAS.get(point, point)
+    return f"{point}/{conc}" if conc else point
+
+
+def check_runtime_parity(
+    model_dir: Path,
+    entries: dict[tuple[str, str], dict[str, set[str]]],
+    report: Report,
+) -> None:
+    """Compare coverage between runtimes within one placement and dtype.
+
+    ``entries`` maps ``(placement, dtype)`` to ``{runtime: {point/conc, ...}}``.
+    Both runtimes must publish the same entries for a cell: a c2 sweep that
+    only vllm measured is missing coverage on sglang, not an optional extra.
+    The comparison normalizes the documented legacy max-sequence spelling
+    (sglang osl1023 vs vllm osl1024); everything else must match exactly.
+    """
+    for (placement, dtype), by_runtime in sorted(entries.items()):
+        if len(by_runtime) < 2:
+            runtimes = sorted(by_runtime)
+            parts = {runtime: {normalize_entry(e) for e in ents}
+                     for runtime, ents in by_runtime.items()}
+            waiver = RUNTIME_STRUCTURAL_CELLS.get(
+                (model_dir.name, placement, dtype)
+            )
+            if waiver is not None and runtimes[0] == waiver[0]:
+                report.warn(
+                    "RUNTIME_STRUCTURAL",
+                    f"{model_dir.as_posix()}/{placement}/{dtype}: only "
+                    f"{runtimes[0]} measured ({len(by_runtime[runtimes[0]])} "
+                    f"entries); sibling runtime structurally unbuildable "
+                    f"({waiver[1]})",
+                )
+                continue
+            report.error(
+                "RUNTIME_MISSING_COVERAGE",
+                f"{model_dir.as_posix()}/{placement}/{dtype}: only "
+                f"{runtimes[0]} measured ({len(by_runtime[runtimes[0]])} "
+                f"entries); no matching "
+                f"{'sglang' if runtimes[0] == 'vllm' else 'vllm'} cell",
+            )
+            continue
+
+        runtimes = sorted(by_runtime)
+        normalized = {
+            runtime: {normalize_entry(e) for e in ents}
+            for runtime, ents in by_runtime.items()
+        }
+        for index, left in enumerate(runtimes):
+            for right in runtimes[index + 1:]:
+                left_set, right_set = normalized[left], normalized[right]
+                if left_set == right_set:
+                    continue
+                cell = f"{model_dir.as_posix()}/{placement}/{dtype}"
+                if left_set - right_set:
+                    missing = sorted(left_set - right_set)
+                    report.error(
+                        "RUNTIME_MISSING_COVERAGE",
+                        f"{cell}: {len(missing)} entr(ies) measured in {left} "
+                        f"but not {right}: "
+                        + ", ".join(missing[:8])
+                        + (" ..." if len(missing) > 8 else ""),
+                    )
+                if right_set - left_set:
+                    missing = sorted(right_set - left_set)
+                    report.error(
+                        "RUNTIME_MISSING_COVERAGE",
+                        f"{cell}: {len(missing)} entr(ies) measured in {right} "
+                        f"but not {left}: "
+                        + ", ".join(missing[:8])
+                        + (" ..." if len(missing) > 8 else ""),
+                    )
+
+
 def check_readme(
     model_dir: Path,
     points: int,
@@ -781,6 +910,9 @@ def main() -> int:
         shapes: dict[tuple[str, str], dict[str, set[str]]] = defaultdict(
             lambda: defaultdict(set)
         )
+        runtime_entries: dict[tuple[str, str], dict[str, set[str]]] = defaultdict(
+            lambda: defaultdict(set)
+        )
         cell_dirs = sorted(
             p for p in model_dir.iterdir() if p.is_dir() and PLACEMENT_RE.match(p.name)
         )
@@ -804,6 +936,9 @@ def main() -> int:
                     shapes[(placement_dir.name, runtime_dir.name)][dtype_dir.name].update(
                         point_shapes(dtype_dir)
                     )
+                    runtime_entries[(placement_dir.name, dtype_dir.name)][
+                        runtime_dir.name
+                    ].update(point_shapes(dtype_dir))
                     cell_env = read_cell_env(dtype_dir)
                     context = native_context(cell_env) if cell_env else None
                     cell_shapes = point_shapes(dtype_dir)
@@ -813,6 +948,7 @@ def main() -> int:
                         )
         check_readme(model_dir, model_points, model_leaves, model_size, per_cell, report)
         check_dtype_parity(model_dir, shapes, report)
+        check_runtime_parity(model_dir, runtime_entries, report)
         total_points += model_points
         total_leaves += model_leaves
         total_size += model_size
