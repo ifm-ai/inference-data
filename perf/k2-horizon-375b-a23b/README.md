@@ -7,7 +7,7 @@ checkpoint.
 
 ## Cells in this dataset
 
-**351 points / 1053 leaves / 116.6 MB.**
+**372 points / 1116 leaves / 119.9 MB.**
 
 | cell (placement/runtime/dtype) | points | leaves |
 |---|---:|---:|
@@ -18,6 +18,7 @@ checkpoint.
 | `1x8/vllm/bf16` | 62 | 186 |
 | `1x8/vllm/fp8` | 62 | 186 |
 | `2x8/sglang/bf16` | 21 | 63 |
+| `2x8/sglang/fp8` | 21 | 63 |
 
 `2x8` is the multi-node placement: two hosts of eight GPUs, sixteen
 devices in total. A node exposes `gpu:8`, so this checkpoint cannot be
