@@ -7,7 +7,7 @@ checkpoint.
 
 ## Cells in this dataset
 
-**332 points / 996 leaves / 116.5 MB.**
+**351 points / 1053 leaves / 116.6 MB.**
 
 | cell (placement/runtime/dtype) | points | leaves |
 |---|---:|---:|
