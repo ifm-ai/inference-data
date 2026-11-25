@@ -729,6 +729,9 @@ RUNTIME_STRUCTURAL_CELLS: dict[tuple[str, str, str], tuple[str, str]] = {
     ("k2-horizon-375b-a23b", "2x8", "bf16"): (
         "sglang", "no-vllm-multinode-launcher"
     ),
+    ("k2-horizon-375b-a23b", "2x8", "fp8"): (
+        "sglang", "no-vllm-multinode-launcher"
+    ),
     **{
         ("k2-horizon-MoVA-36b-a4b", placement, "fp8"): (
             "vllm", "sglang-ct-only"
