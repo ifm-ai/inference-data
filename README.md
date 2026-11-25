@@ -2,6 +2,10 @@
 
 Data store of tech report information, information for future blog posts, and open-source inference investigations.
 
+[![Papers with Code: SOTA on BBH](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49274&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49274)
+[![Papers with Code: #2 on MBPP](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49280&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49280)
+[![Papers with Code: #3 on GSM8K](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49278&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49278)
+
 ## What this dataset is
 
 Systematic endpoint measurements of the K2-Horizon checkpoint family on
