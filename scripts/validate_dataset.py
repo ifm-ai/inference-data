@@ -718,16 +718,11 @@ def check_dtype_parity(
 #                              do not fit), so only sglang has the cell
 #   sglang-ct-only             sglang's xLLM loader rejects the checkpoint
 #                              (native fp8, not compressed-tensors)
-#   no-vllm-multinode-launcher vllm has no two-node launcher in the campaign;
-#                              the 2x8 cell is measured with sglang only
 RUNTIME_STRUCTURAL_CELLS: dict[tuple[str, str, str], tuple[str, str]] = {
     ("k2-horizon-32b", "1x1", "bf16"): ("sglang", "vllm-1gpu-startup-failure"),
     ("k2-horizon-32b", "1x1", "fp8"): ("sglang", "vllm-1gpu-startup-failure"),
     ("k2-horizon-MoVA-36b-a4b", "1x1", "bf16"): (
         "sglang", "vllm-1gpu-startup-failure"
-    ),
-    ("k2-horizon-375b-a23b", "2x8", "bf16"): (
-        "sglang", "no-vllm-multinode-launcher"
     ),
     **{
         ("k2-horizon-MoVA-36b-a4b", placement, "fp8"): (
