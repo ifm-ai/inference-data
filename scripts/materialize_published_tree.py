@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize the published Chapter 8.1 dataset into this repository.
+"""Materialize the published K2-Horizon dataset into this repository.
 
 Reads the uncompressed campaign archive tree (schema
 ``perfhc.inference_perf_data.run.v1``) and writes, under ``perf/``
@@ -34,9 +34,9 @@ pass ``--meta-out <dir>`` to write them somewhere for inspection (e.g.
 * each source leaf carries ``upstream.itls_us`` (per-block timing); relax
   with ``--allow-missing-timing`` if ever needed;
 * no ``_slim`` marker field appears in any written record;
-* no ``.chapter81`` or absolute ``/mnt/`` reference survives in any written
-  file (``_archive.source`` and manifest ``source`` fields are rewritten to
-  their stage-relative form when they arrive unscrubbed);
+* no campaign-stage directory name or absolute ``/mnt/`` reference survives
+  in any written file (``_archive.source`` and manifest ``source`` fields
+  are rewritten to their stage-relative form when they arrive unscrubbed);
 * every written ``.json.gz`` is re-opened and reparsed as JSON.
 
 Outputs are deterministic (gzip mtime=0): identical archive input yields
@@ -58,12 +58,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from publish_run import publish_record  # noqa: E402
 
-STAGE_PREFIX = "/mnt/weka/shrd/k2m/micah.villmow/models/.chapter81-runs/"
-FORBIDDEN = (".chapter81", "/mnt/")
+STAGE_RE = re.compile(r"^.*?([^/]+/performance/)")
+FORBIDDEN = ("/mnt/",)
 RUNS = ("run1", "run2", "run3")
 MANIFESTS = {
-    ".chapter81-archive-manifest-consolidated.json": "manifest-consolidated.json",
-    ".chapter81-archive-manifest-capacity.json": "manifest-capacity.json",
+    "*-archive-manifest-consolidated.json": "manifest-consolidated.json",
+    "*-archive-manifest-capacity.json": "manifest-capacity.json",
 }
 LEAF_RE = re.compile(r"/(run\d+)/result\.json$")
 SUFFIX = "_results.json.gz"
@@ -80,7 +80,8 @@ def model_dir(archive_model: str) -> str:
 
 
 def scrub(value: str) -> str:
-    return value[len(STAGE_PREFIX):] if value.startswith(STAGE_PREFIX) else value
+    match = STAGE_RE.match(value)
+    return value[match.start(1):] if match else value
 
 
 def scrub_obj(node: object) -> None:
@@ -204,10 +205,16 @@ def main() -> int:
         # Lineage manifests: rewrite to repo-relative shipped paths, keep only
         # records whose leaf shipped. Inspection only — not shipped in the repo.
         shipped = {str(p.relative_to(out_root)) for p in out_root.rglob(f"run*{SUFFIX}")}
-        for src_name, dst_name in MANIFESTS.items():
-            src_file = source / src_name
-            if not src_file.is_file():
+        for pattern, dst_name in MANIFESTS.items():
+            matches = sorted(source.glob(pattern))
+            if not matches:
                 continue
+            if len(matches) > 1:
+                raise SystemExit(
+                    f"gate: multiple manifests match {pattern!r}: "
+                    + ", ".join(str(m) for m in matches)
+                )
+            src_file = matches[0]
             records = json.loads(src_file.read_text())
             scrub_obj(records)
             kept = []
@@ -231,7 +238,7 @@ def main() -> int:
             text = json.dumps(kept, indent=2) + "\n"
             for token in FORBIDDEN:
                 if token in text:
-                    raise SystemExit(f"gate: forbidden reference {token!r} in manifest {src_name}")
+                    raise SystemExit(f"gate: forbidden reference {token!r} in manifest {src_file.name}")
             out_file.write_text(text)
             print(f"manifest {dst_name}: {len(records)} lineage records -> {len(kept)} shipped")
 
@@ -250,7 +257,7 @@ def main() -> int:
                 "partial_points_are_fatal_unless_waived": not args.allow_partial,
                 "timing_arrays_present": not args.allow_missing_timing,
                 "no_slim_marker": True,
-                "no_chapter81_refs": True,
+                "no_campaign_stage_refs": True,
                 "no_absolute_paths": True,
                 "env_json_present": True,
                 "shipped_files_reparsed": True,

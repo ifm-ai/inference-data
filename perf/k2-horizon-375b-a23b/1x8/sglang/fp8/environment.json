@@ -74,6 +74,35 @@
         "8"
       ],
       "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/375b-moe-fp8-f3d9e54cb096b5567a94feb26d87caa9f700daca --served-model-name 375b-moe-fp8-sglang-g8-tp-ep-maxc --host 127.0.0.1 --port 47537 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 8 --max-running-requests 1 --disable-radix-cache --enable-metrics --ep-size 8"
+    },
+    "2": {
+      "argv": [
+        "/opt/sglang/bin/python3",
+        "-m",
+        "sglang.launch_server",
+        "--model-path",
+        "<models-root>/375b-moe-fp8-f3d9e54cb096b5567a94feb26d87caa9f700daca",
+        "--served-model-name",
+        "375b-moe-fp8-sglang-g8",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "47537",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--context-length",
+        "524288",
+        "--tp-size",
+        "8",
+        "--max-running-requests",
+        "2",
+        "--disable-radix-cache",
+        "--enable-metrics",
+        "--ep-size",
+        "8"
+      ],
+      "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/375b-moe-fp8-f3d9e54cb096b5567a94feb26d87caa9f700daca --served-model-name 375b-moe-fp8-sglang-g8 --host 127.0.0.1 --port 47537 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 8 --max-running-requests 2 --disable-radix-cache --enable-metrics --ep-size 8"
     }
   },
   "client_request_example": {

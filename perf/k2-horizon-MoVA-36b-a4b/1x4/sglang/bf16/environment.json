@@ -70,6 +70,35 @@
         "{\"xllm_source_router_gemm_partitions\":2}"
       ],
       "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd --served-model-name 36b-mova-bf16-sglang-g4-tp-ep-maxc --host 127.0.0.1 --port 47109 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 4 --max-running-requests 1 --disable-radix-cache --enable-metrics --json-model-override-args '{\"xllm_source_router_gemm_partitions\":2}'"
+    },
+    "2": {
+      "argv": [
+        "/opt/sglang/bin/python3",
+        "-m",
+        "sglang.launch_server",
+        "--model-path",
+        "<models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd",
+        "--served-model-name",
+        "36b-mova-bf16-sglang-g4-tp-ep-maxc",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "47109",
+        "--dtype",
+        "bfloat16",
+        "--trust-remote-code",
+        "--context-length",
+        "524288",
+        "--tp-size",
+        "4",
+        "--max-running-requests",
+        "2",
+        "--disable-radix-cache",
+        "--enable-metrics",
+        "--json-model-override-args",
+        "{\"xllm_source_router_gemm_partitions\":2}"
+      ],
+      "shell": "/opt/sglang/bin/python3 -m sglang.launch_server --model-path <models-root>/36b-mova-bf16-963c0b3e195e95d93a18caf535b4b6444bb793fd --served-model-name 36b-mova-bf16-sglang-g4-tp-ep-maxc --host 127.0.0.1 --port 47109 --dtype bfloat16 --trust-remote-code --context-length 524288 --tp-size 4 --max-running-requests 2 --disable-radix-cache --enable-metrics --json-model-override-args {\"xllm_source_router_gemm_partitions\":2}"
     }
   },
   "client_request_example": {

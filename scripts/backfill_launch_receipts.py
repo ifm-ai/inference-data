@@ -247,8 +247,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--maxc-performance",
         type=Path,
-        default=Path("/mnt/weka/shrd/k2m/micah.villmow/models/.chapter81-runs/maxc-phase1/performance"),
-        help="maxc-phase1 performance root, scanned only for the c2 repair map",
+        default=None,
+        help=(
+            "optional capacity-stage performance root for the one-off "
+            "c2 repair map"
+        ),
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
@@ -343,12 +346,18 @@ def main(argv: list[str] | None = None) -> int:
         if not args.dry_run:
             env_path.write_text(json.dumps(environment, indent=2) + "\n")
 
-    failures += repair_c2(
-        args.repo,
-        args.maxc_performance,
-        args.models_root,
-        dry_run=args.dry_run,
-    )
+    if args.maxc_performance is not None:
+        failures += repair_c2(
+            args.repo,
+            args.maxc_performance,
+            args.models_root,
+            dry_run=args.dry_run,
+        )
+    else:
+        print(
+            "skip c2 repair map: --maxc-performance not supplied "
+            "(historical one-off repair)"
+        )
 
     return 1 if failures else 0
 
