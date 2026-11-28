@@ -1,9 +1,6 @@
 # K2-Horizon-900M — inference-performance dataset
 
-Layout, components, record schema, launch metadata, and reproduction are
-shared across the K2-Horizon family — see the [top-level
-README](../../README.md). This file documents what is specific to this
-checkpoint.
+See the [top-level README](../../README.md) for the shared layout, record schema, launch metadata, and reproduction steps.
 
 ## Cells in this dataset
 

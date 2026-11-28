@@ -1,9 +1,6 @@
 # K2-Horizon-375B-A23B — inference-performance dataset
 
-Layout, components, record schema, launch metadata, and reproduction are
-shared across the K2-Horizon family — see the [top-level
-README](../../README.md). This file documents what is specific to this
-checkpoint.
+See the [top-level README](../../README.md) for the shared layout, record schema, launch metadata, and reproduction steps.
 
 ## Cells in this dataset
 
@@ -22,8 +19,4 @@ checkpoint.
 | `2x8/vllm/bf16` | 21 | 63 |
 | `2x8/vllm/fp8` | 21 | 63 |
 
-`2x8` is the multi-node placement: two hosts of eight GPUs, sixteen
-devices in total. A node exposes `gpu:8`, so this checkpoint cannot be
-served from one host at that width. Its cell carries `nodes` alongside
-`gpus`, and its `server_launch` entry gives one command per host — see
-[Placement](../../README.md#placement).
+`2x8` means two hosts with eight GPUs each. See [Repository layout](../../README.md#repository-layout) for the layout.
