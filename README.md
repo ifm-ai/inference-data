@@ -1,255 +1,154 @@
-# inference-data
+# K2-Horizon inference performance dataset
 
-Data store of tech report information, information for future blog posts, and open-source inference investigations.
+Data store of technical report information, information for future blog posts, and open-source inference investigations.
 
 [![Papers with Code: SOTA on BBH](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49274&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49274)
 [![Papers with Code: #2 on MBPP](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49280&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49280)
 [![Papers with Code: #3 on GSM8K](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge.svg?eval=49278&live=1)](https://paperswithcode.co/api/v1/papers/2611.21003/leaderboard-badge-link?eval=49278)
 
-## What this dataset is
+This repository contains inference performance measurements for the
+K2-Horizon model family on NVIDIA H200 GPUs. The data covers input length,
+output length, concurrency, serving runtime, and precision. Each point has
+three runs.
 
-Systematic endpoint measurements of the K2-Horizon checkpoint family on
-NVIDIA H200 GPUs, sweeping input-sequence length (ISL), output-sequence
-length (OSL), and concurrency (C) across serving runtimes (vLLM and
-SGLang today; more may appear). Every measured point holds exactly three
-independent repetitions (`run1`, `run2`, `run3`) with identical requested
-token counts and concurrency.
+## Models
 
-Model datasets published so far (each with its own README listing its
-cells): [`k2-horizon-3.7b`](perf/k2-horizon-3.7b/),
-[`k2-horizon-7b`](perf/k2-horizon-7b/), [`k2-horizon-32b`](perf/k2-horizon-32b/),
-[`k2-horizon-MoVA-36b-a4b`](perf/k2-horizon-MoVA-36b-a4b/),
-[`k2-horizon-375b-a23b`](perf/k2-horizon-375b-a23b/),
-[`k2-horizon-900m`](perf/k2-horizon-900m/).
+| Model | Context |
+|---|---|
+| [K2-Horizon-900M](perf/k2-horizon-900m/README.md) | 128K |
+| [K2-Horizon-3.7B](perf/k2-horizon-3.7b/README.md) | 512K |
+| [K2-Horizon-7B](perf/k2-horizon-7b/README.md) | 512K |
+| [K2-Horizon-32B](perf/k2-horizon-32b/README.md) | 512K |
+| [K2-Horizon-MoVA-36B-A4B](perf/k2-horizon-MoVA-36b-a4b/README.md) | 512K |
+| [K2-Horizon-375B-A23B](perf/k2-horizon-375b-a23b/README.md) | 512K |
 
-## Components
+## Repository layout
 
-Every measurement was taken with these component versions (per-cell
-receipts in each cell's `environment.json`):
-
-| component | version | repository | commit | image |
-|---|---|---|---|---|
-| InferenceX | — | https://github.com/SemiAnalysisAI/InferenceX | 4ab85c1e33b66d6bd5a3087b3de5ba3e86cbbe80 | — |
-| SGLang | 0.5.20 | https://github.com/sgl-project/sglang | 94602c9c2b7cbdb8efd5c52802dac6a1c180089e | lmsysorg/sglang:v0.5.20 |
-| vLLM | 0.29.1rc1.dev452+g3df4ae153 | https://github.com/vllm-project/vllm | 3df4ae153eb385e27b52f26c81f8edb9e20b9984 | vllm/vllm-openai:nightly-3df4ae153eb385e27b52f26c81f8edb9e20b9984 |
-
-## Layout
-
-```
-perf/k2-horizon-<model>/
-  <nodes>x<gpus>/              # <nodes> nodes × <gpus> GPUs each — 1xG today,
-                               # multi-node data lands as e.g. 2x8
-    <runtime>/                 # vllm | sglang | …
-      <dtype>/                 # bf16 | fp8 | … (more precisions going forward)
-        environment.json       # component versions + exact launch commands
-        isl<I>-osl<O>/         # requested token counts
-          c<N>/                # concurrency
-            run{1,2,3}_results.json.gz
+```text
+perf/
+  k2-horizon-<model>/
+    <nodes>x<gpus>/
+      <runtime>/
+        <dtype>/
+          environment.json
+          isl<I>-osl<O>/
+            c<N>/
+              run1_results.json.gz
+              run2_results.json.gz
+              run3_results.json.gz
 ```
 
-Vocabulary used throughout: a **cell** is one
-`<nodes>x<gpus>/<runtime>/<dtype>` directory (it carries the
-`environment.json` receipt); a **point** is one `(placement, runtime,
-dtype, ISL, OSL, concurrency)` combination — an `isl<I>-osl<O>/c<N>`
-directory; the **leaves** of a point are its three run records.
+- A **cell** is one placement, one runtime, and one precision. For example,
+  `2x8/sglang/bf16` is two nodes with eight GPUs per node, SGLang, and bf16.
+- A **point** is one cell with one input length, one output length, and one
+  concurrency. `isl8192-osl32/c2` is 8192 input tokens, 32 output tokens, and
+  concurrency 2.
+- A **run** is one measurement of a point. Each point has three runs.
 
-## Record schema
+## Result records
 
-Each `run<N>_results.json.gz` is one independently decompressible gzip
-stream holding the full InferenceX client output for one repetition —
-`zcat run1_results.json.gz | jq .`. Records keep everything the benchmark
-emitted: identity fields (`concurrency`, `observed_running`, `scope`,
-`token_ids_requested`), `qualification` (pass flag, aggregate
-prefill/decode TPS), `streams` pass metadata, and all `upstream`
-aggregates **and arrays** — duration, token totals, throughputs,
-per-request `ttfts`, `input_lens`, `output_lens`, errors, and
-`upstream.itls_us` (per-token inter-token-latency arrays in integer
-microseconds, one array per request — the per-block timing data). The only
-addition over the raw record is `upstream.itl_us_stats`: per-request
-nearest-rank (`ceil(n·f)`) ITL statistics `{count, mean, min, p50, p90,
-p95, p99, max}` in integer microseconds, aligned with the per-request
-arrays.
+Each `run*_results.json.gz` file is one result from the InferenceX benchmark
+client. A record contains:
 
-A cell measured through the single-request capacity path keeps that path's
-leaner record instead: it carries `prompt_token_ids` and the raw SSE body
-rather than `token_ids_requested` and `streams`, and has no
-`concurrency`/`observed_running` identity fields. Its `upstream` block is
-identical to every other cell's, so the timing data is unaffected;
-`validate_dataset.py` reports the difference as `RECORD_LEAN_SHAPE`.
+- the request: input tokens, output tokens, and concurrency;
+- the timings: time to first token, inter-token latency, and total duration;
+- the throughput: input, output, and total tokens per second;
+- the outcome: completed tokens, request errors, and the qualification result.
 
-## Launch metadata
+The full field set is in each record. The file is self-contained.
 
-Each cell's `environment.json` carries everything needed to reproduce its
-measurements without any harness-internal tooling:
+## Runtime versions
 
-* `components`: name, repository, commit and container image of the serving
-  runtime, and the repository/commit of the InferenceX benchmark client;
-* `server_launch`: the exact server launch command (`argv` and shell form)
-  per shipped concurrency, with the local checkpoint directory shown as
-  `<models-root>/`;
-* `client_request_example`: one verbatim client request payload (prompt
-  token-id lists summarized for size).
+| Component | Version |
+|---|---|
+| InferenceX benchmark client | current campaign build |
+| SGLang | 0.5.20 |
+| vLLM | 0.29.1 |
 
-### Placement
+Each cell has an `environment.json` file. That file records the exact
+component builds and the launch commands for that cell.
 
-Single-node cells describe their placement implicitly: `cell.gpus`,
-`system.device_count` and the length of `system.devices` all equal the
-device count on their one host. A multi-node cell cannot be read that way,
-so it carries the placement explicitly. Every cell may declare:
+## Reproduce one point
 
-* `cell.nodes` — number of hosts the server spanned;
-* `cell.gpus_per_node` — GPUs on each host (8 on this cluster);
-* `system.nodes` — the same host count, recorded with the device inventory.
+Use `scripts/reproduce.py` to print the server and client commands for one
+point:
 
-`cell.gpus`, `system.device_count` and `len(system.devices)` remain the
-*placement total* (`nodes × gpus_per_node`), so a reader that only knows
-the single-node fields still sees the full width. Such a cell's
-`server_launch` entry carries `nodes`: one command per host in rank order,
-each the base `server_launch.argv` plus the `--dist-init-addr` and
-`--node-rank` that host ran. The wrapper appends those flags per node, so
-the base argv alone does not reproduce the placement — launch the `nodes`
-commands concurrently on their own hosts. `system.devices` lists every GPU
-across the allocation, so entries repeat. A directory such as
-`2x8/sglang/bf16` therefore means two nodes of eight GPUs each, sixteen
-devices in total — the multi-node analogue of `1x8`.
-
-All client requests share: seed 3, exact-token input (`input_lens` equals
-ISL), exact-token output (`output_lens` equals OSL), and the
-OpenAI-compatible endpoint of the server named in the launch command.
-Point directories encode the request shape: `isl<I>-osl<O>` are the
-requested input/output token counts and `c<N>` the concurrency. Prompt
-token ids were drawn once from the model tokenizer and are identical
-across the three runs of a point.
-
-## Reproducing a point
-
-`scripts/reproduce.py` walks the dataset and prints, for every measured
-point, the exact two commands that produce it — the serving-runtime launch
-(verbatim from the cell's `environment.json`, with the `<models-root>/`
-placeholder resolved from `--models-root`) and the InferenceX client
-replay (seed 3, exact ISL/OSL, `--max-concurrency C`). No job scheduler,
-no harness tooling:
-
-```
-python3 scripts/reproduce.py [--cell <nodes>x<gpus>/<runtime>/<dtype>]
-                             [--point isl<I>-osl<O>/c<N>]
-                             [--models-root <path>] [--execute]
+```bash
+python3 scripts/reproduce.py \
+  --cell perf/k2-horizon-375b-a23b/2x8/sglang/bf16 \
+  --point isl4096-osl32
 ```
 
-## Regenerating the dataset
+The script prints the commands. It does not start a scheduler or reserve
+GPUs. Add `--execute` to run the commands. Use `--models-root` to set the
+local model directory.
 
-The tree is rewritten from the campaign archive by gated tooling
-(idempotent; deterministic gzip bytes — mtime=0):
+## Validate the dataset
 
-```
-scripts/publish_run.py                   # record transform: full record + upstream.itl_us_stats
-scripts/materialize_published_tree.py    # archive -> perf/ writer
-scripts/backfill_launch_receipts.py      # add a missing launch receipt from the archive
-scripts/build_multinode_environment.py   # environment.json for a multi-node cell
+Run the validator:
 
-python3 scripts/materialize_published_tree.py --source <archive-root> --repo . [--meta-out <dir>]
+```bash
+python3 scripts/validate_dataset.py
 ```
 
-## Required point grid
+The validator checks:
 
-Every concurrency of a cell holds the same ISL sweep. The sweep is capped at
-the server's native context, and the maximum-sequence test is the largest
-input whose input plus output reaches that context:
+- each point has three runs;
+- each run has the declared input and output lengths;
+- the timings and token counts agree;
+- each cell has an `environment.json` file;
+- the model README totals match the tree;
+- both runtimes have the same coverage when both can run.
 
+The exit status is 0 for a clean dataset, 1 for an error, and 2 for warnings
+only. Use `--json` for a machine-readable report.
+
+## Measurement grid
+
+Each cell has a full input-length sweep at concurrency 2. Each cell also has
+a decode anchor at input length 1.
+
+The input lengths are 1, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384,
+32768, 65536, 131072, 196608, 262144, 327680, 393216, and 458752. Each cell
+also has a context test at its largest supported prompt.
+
+The main sweep uses 32 output tokens. Legacy points at 1024 output tokens
+remain in the tree.
+
+A cell limited by GPU memory stops at the highest point it can host. A
+missing point above that limit is intentional. The validator reports these
+limits, and the model README lists the points for each cell.
+
+## Known limits
+
+- The 900M and 3.7B models have bf16 data only.
+- The 32B and MoVA 36B models have no vLLM 1x1 cell. The vLLM engine fails
+  at startup on one GPU.
+- The MoVA 36B fp8 model has no SGLang cell. The SGLang loader rejects the
+  checkpoint.
+- The 375B bf16 1x4 cell is absent because the model does not fit in GPU
+  memory. Use the fp8 cell instead.
+- The 2x8 placement is available for the 375B model only.
+- SGLang rejects prompts above the context length minus 6 tokens. vLLM
+  accepts prompts up to the context length minus 1 token. The data records
+  the largest prompt that each runtime accepts. The validator compares these
+  two boundary points as equal.
+
+## Regenerate the published tree
+
+The archive is the source of truth for the published tree. Use the
+materializer to rebuild `perf/` from an archive:
+
+```bash
+python3 scripts/materialize_published_tree.py \
+  --source /path/to/archive \
+  --repo .
 ```
-64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
-131072, 196608, 262144, 327680, 393216, 458752   (+ the context test)
+
+Use `--meta-out` to keep the audit files. After a data change, run:
+
+```bash
+python3 scripts/refresh_model_readmes.py
 ```
 
-That is **18 ISL points for a 512K-context model, 14 for 256K and 12 for
-128K**. A 1M-context model adds 768K and 1M on top of the sweep, for **20**.
-Each cell also carries one `isl1` decode anchor. A cell with `c2` carries the
-full sweep at `c2` as well, so coverage is counted per concurrency.
-
-### Admission cap
-
-The grid assumes the server can host the full context. A cell whose KV pool
-cannot does not carry the points above its demonstrated ceiling — those
-inputs are rejected by the server outright, not merely unmeasured. The
-validator reads the ceiling from the data: the largest total sequence length
-(input + output) any published point of the cell completed. Points above it
-are excluded from the required grid, and the cell carries a
-`GRID_BELOW_CONTEXT` warning so the reduced grid stays visible. A runtime
-that reserves a few tokens below the context (sglang rejects input above
-context − 6) is not a KV ceiling: a demonstrated total within that reserve
-still proves the full-context sequence is hostable, so the maximum-sequence
-test stays required. The 512K-context cells currently capped this way are
-32b 1x1 bf16 (13 sweep points), 32b 1x1 fp8 and MoVA 36b 1x1 bf16 (14).
-
-### Output length
-
-The grid is measured at **osl 32**. The initial campaign measured the same
-sweep at **osl 1024** to establish that runtimes and configurations align
-point for point. That alignment is now established, so later runs use osl 32:
-a prefix of the response still resolves prefill behaviour across input length,
-at a fraction of the compute.
-
-The osl 1024 points stay in the tree and are not reported as missing grid
-coverage (`LEGACY_SWEEP_OSL`). Points whose ISL falls outside the grid at
-either output length are reported as `GRID_UNEXPECTED_POINT`.
-
-## Validating the dataset
-
-`scripts/validate_dataset.py` reads the shipped tree back and reports every
-inconsistency it finds. Nothing else does: the publisher only writes and
-`reproduce.py` only re-emits commands.
-
-```
-python3 scripts/validate_dataset.py [--dataset-root perf] [--json]
-                                    [--max-report 40] [--allow CODE[,CODE]]
-```
-
-It checks that every point holds exactly `run1`, `run2` and `run3` and no
-other files; that each leaf decompresses and keeps the record shape; that
-`input_lens` equals the requested ISL at the requested concurrency; that
-`itl_us_stats` describes the `itls_us` arrays present; that each point's
-`c<N>` directory is served by a launch that admits `N`; that a cell's
-`environment.json` agrees with its directory name and device totals; that
-each model README states the totals and per-cell counts the tree actually
-holds; and that a placement measured in one dtype covers the same point
-shapes in its sibling dtype. Repetitions of one point must agree on their
-output length to within `REPETITION_TOLERANCE` (1) token; a wider spread is
-`RUNS_DISAGREE_OUTPUT`.
-
-A server may return up to `SHORTFALL_TOLERANCE` (3) fewer output tokens than
-requested; both runtimes do this on maximum-length decodes. A shortfall within
-that tolerance is `OUTPUT_SHORTFALL_WITHIN_TOLERANCE`, a longer one is
-`OUTPUT_SHORTFALL`, and more tokens than requested is
-`OUTPUT_OVER_REQUESTED`.
-
-Dtype coverage is compared per placement and runtime. A cell measured in one
-dtype only is `DTYPE_PAIR_INCOMPLETE`; a point shape present in one dtype and
-absent in the other is `DTYPE_MISSING_COVERAGE`, which names each missing
-shape so it can be queued. Cells whose sibling dtype structurally cannot
-exist — no fp8 checkpoint was published, bf16 weights exceed the placement's
-HBM, or sglang's loader rejects the checkpoint's quantization format — are
-waived as `DTYPE_PAIR_STRUCTURAL` (WARNING) instead; the waived cells and
-their reasons are listed in `STRUCTURAL_DTYPE_CELLS` in the validator, with
-full provenance in REFRESH-POLICY.md.
-
-Runtime coverage is compared the same way, per placement and dtype: both
-sglang and vllm must publish the same entries for a cell, including the c2
-sweep. Entries measured in one runtime only are `RUNTIME_MISSING_COVERAGE`.
-The documented legacy max-sequence spelling (sglang `osl1023` vs vllm
-`osl1024`, same 524,286-token total) is normalized before comparison, as
-is the max-prompt anchor: vllm prefills up to `context − 1` while sglang
-rejects prompts above `context − 6`, so sglang's `isl523263-osl1023` and
-vllm's `isl524287-osl1` (likewise 130047/131071 at 128K) are the same
-boundary point in each runtime's admissible spelling.
-Cells whose sibling runtime structurally cannot exist — the vllm engine
-fails at startup on one GPU for 32b/MoVA, sglang cannot load the MoVA fp8
-checkpoint, and there is no vllm two-node launcher — are waived as
-`RUNTIME_STRUCTURAL` (WARNING); see `RUNTIME_STRUCTURAL_CELLS`.
-
-Exit status is 0 when clean, 1 when any ERROR is reported, and 2 when only
-WARNINGs are reported. Warnings cover conditions that are real but explained:
-`ITLS_SHORT` and `RUNS_DISAGREE_ITL` (some vLLM runs report fewer
-inter-token intervals than the tokens they produced), `OUTPUT_SHORTFALL`
-(a server stopped short of the requested OSL), and `RECORD_LEAN_SHAPE`
-(a cell produced through the single-request capacity path). Accept a known
-condition with `--allow <CODE>` rather than dropping the check.
+This command updates the totals and cell table in each model README.
